@@ -161,11 +161,12 @@ function toPlay(j, videoT, jobId) {
 const JOBS = {}; // id -> {status, log[], t, dur, found, scans, error, spentEst}
 let processing = false;
 
-async function processJob(id, file) {
+async function processJob(id, file, isRemote) {
   const job = JOBS[id];
   const log = m => { job.log.push('[' + new Date().toISOString().slice(11, 19) + '] ' + m); if (job.log.length > 400) job.log.shift(); };
   try {
     job.status = 'probing';
+    if (isRemote) log('Streaming film directly (no full download) — reading frames on demand.');
     const dur = await ffprobeDuration(file);
     if (!dur) throw new Error('Could not read video duration — unsupported file?');
     job.dur = Math.round(dur);
@@ -209,7 +210,7 @@ async function processJob(id, file) {
     job.status = 'error'; job.error = e.message.slice(0, 300); log('⛔ ' + job.error);
   } finally {
     processing = false;
-    try { fs.unlinkSync(file); } catch (e) {}
+    if (!isRemote) { try { fs.unlinkSync(file); } catch (e) {} }
   }
 }
 
@@ -243,18 +244,11 @@ app.post('/api/jobs/url', async (req, res) => {
       if (!made) throw new Error('yt-dlp produced no file');
       fs.renameSync(path.join(WORK_DIR, made), dest);
       JOBS[id].log.push('YouTube download complete (' + Math.round(fs.statSync(dest).size / 1048576) + ' MB).');
+      processJob(id, dest, false);
     } else {
-      JOBS[id].log.push('Downloading film…');
-      const r = await fetch(url, { redirect: 'follow' });
-      if (!r.ok) throw new Error('Download failed: HTTP ' + r.status);
-      const ws = fs.createWriteStream(dest);
-      await new Promise((resolve, reject) => {
-        const { Readable } = require('stream');
-        Readable.fromWeb(r.body).pipe(ws).on('finish', resolve).on('error', reject);
-      });
-      JOBS[id].log.push('Download complete (' + Math.round(fs.statSync(dest).size / 1048576) + ' MB).');
+      // direct video URL — stream frames on demand with ffmpeg (no full download, any file size)
+      processJob(id, url, true);
     }
-    processJob(id, dest);
   } catch (e) {
     let msg = e.message.slice(0, 300);
     if (isYT && /sign in|bot|429|403|confirm/i.test(msg)) msg = 'YouTube blocked this download from the server IP (common on cloud hosts). Download the film yourself and use Upload Film instead.';
