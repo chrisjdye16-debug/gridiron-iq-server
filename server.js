@@ -158,7 +158,7 @@ function toPlay(j, videoT, jobId) {
     hash: ['L', 'M', 'R'].includes(st.hash) ? st.hash : 'M',
     formation, personnel: PERSONNEL[formation] || '11',
     motion: nearest(j.motion, MOTIONS) || 'None',
-    playType, concept: nearest(j.concept, [...RUN_CONCEPTS, ...PASS_CONCEPTS, ...ST_CONCEPTS]) || 'Inside Zone',
+    playType, concept,
     routes,
     front: nearest(d.front, FRONTS) || 'Nickel 4-2-5',
     coverage: nearest(d.postSnapCoverage, COVERAGES) || 'Cover 3',
