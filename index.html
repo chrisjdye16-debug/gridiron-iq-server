@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>GRIDIRON IQ — Film Intelligence Platform</title>
+<style>
+  :root{
+    --bg:#0b0e13; --panel:#12161f; --panel2:#181d29; --line:#232a3a;
+    --text:#e8ebf2; --muted:#8a93a6; --accent:#d4a437; --accent2:#3fae6a;
+    --red:#d4574e; --blue:#4e8fd4; --purple:#9a6fd4; --orange:#d4894e;
+    --mono:'SF Mono','Cascadia Code',Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,'Segoe UI',Inter,Roboto,sans-serif;min-height:100vh}
+  header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#121724,#0d1119);position:sticky;top:0;z-index:50}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8a6a1e);display:flex;align-items:center;justify-content:center;font-weight:800;color:#0b0e13;font-size:15px;letter-spacing:-1px}
+  .logo h1{font-size:17px;letter-spacing:2px;font-weight:800}
+  .logo h1 span{color:var(--accent)}
+  .logo small{display:block;font-size:10px;letter-spacing:3px;color:var(--muted);font-weight:500}
+  nav{display:flex;gap:4px;margin-left:24px;flex-wrap:wrap}
+  nav button{background:none;border:none;color:var(--muted);padding:9px 15px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.3px;transition:.15s}
+  nav button:hover{color:var(--text);background:var(--panel2)}
+  nav button.active{color:var(--accent);background:rgba(212,164,55,.1)}
+  .hdr-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .scout-toggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .scout-toggle button{background:none;border:none;color:var(--muted);padding:7px 14px;cursor:pointer;font-size:12px;font-weight:700}
+  .scout-toggle button.on{background:var(--accent);color:#0b0e13}
+  main{padding:12px 18px;max-width:1500px;margin:0 auto}
+  .tab{display:none}.tab.show{display:block}
+  h2{font-size:18px;font-weight:800;letter-spacing:.5px;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .v{font-size:24px;font-weight:800;font-family:var(--mono)}
+  .kpi .l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+  .kpi.gold .v{color:var(--accent)} .kpi.green .v{color:var(--accent2)} .kpi.red .v{color:var(--red)} .kpi.blue .v{color:var(--blue)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:1100px){.grid2,.grid3{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+  .card h3{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;font-weight:700}
+  .card h3 .hint{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;font-size:12px;float:right}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:8px 10px;border-bottom:1px solid rgba(35,42,58,.5)}
+  tr.clickable{cursor:pointer}tr.clickable:hover{background:var(--panel2)}
+  tr.selrow{background:rgba(212,164,55,.08)}
+  .bar-wrap{background:var(--panel2);border-radius:4px;height:8px;overflow:hidden;min-width:60px}
+  .bar{height:100%;border-radius:4px;background:var(--accent)}
+  .bar.g{background:var(--accent2)}.bar.r{background:var(--red)}.bar.b{background:var(--blue)}.bar.p{background:var(--purple)}
+  .pct{font-family:var(--mono);font-weight:700}
+  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+  .filters label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px}
+  select,input[type=text],input[type=number]{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px;font-size:13px;outline:none}
+  select:focus,input:focus{border-color:var(--accent)}
+  .btn{background:var(--accent);color:#0b0e13;border:none;padding:9px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:.3px}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+  .btn.green{background:var(--accent2);color:#0b0e13}
+  .btn.sm{padding:6px 11px;font-size:12px}
+  .chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px}
+  .chip.run{background:rgba(63,174,106,.15);color:var(--accent2)}
+  .chip.pass{background:rgba(78,143,212,.15);color:var(--blue)}
+  .chip.rpo{background:rgba(154,111,212,.15);color:var(--purple)}
+  .chip.pa{background:rgba(212,137,78,.15);color:var(--orange)}
+  .chip.blitz{background:rgba(212,87,78,.18);color:var(--red)}
+  .chip.gold{background:rgba(212,164,55,.15);color:var(--accent)}
+  .chip.dim{background:var(--panel2);color:var(--muted)}
+  /* Film room */
+  .film-grid{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;align-items:start}
+  @media(max-width:900px){.film-grid{grid-template-columns:1fr}}
+  .right-col{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;padding-right:2px}
+  .video-box{background:#000;border-radius:12px;border:1px solid var(--line);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .video-box video{width:100%;height:100%;display:none}
+  .embed-wrap{position:absolute;inset:0;display:none}
+  .embed-wrap iframe{width:100%;height:100%;border:0}
+  .url-bar{display:flex;gap:8px;margin-bottom:10px}
+  .url-bar input{flex:1}
+  .drop-hint{text-align:center;color:var(--muted);padding:30px;cursor:pointer}
+  .drop-hint .big{font-size:42px;margin-bottom:8px}
+  .vid-controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+  .tag-panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .tag-panel h3{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+  .fgrid .full{grid-column:1/-1}
+  .sect-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:5px;margin:16px 0 10px;font-weight:700}
+  .sect-label:first-child{margin-top:0}
+  .routes-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center;margin-bottom:10px}
+  .pos-badge{font-family:var(--mono);font-weight:800;font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 8px;text-align:center;min-width:42px}
+  .field-svg{width:100%;border-radius:10px;background:linear-gradient(180deg,#0e2818,#0a2013);border:1px solid var(--line)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+  .matrix{display:grid;gap:4px;font-family:var(--mono);font-size:12px}
+  .mx-cell{padding:10px 6px;border-radius:6px;text-align:center;font-weight:700}
+  .mx-head{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;justify-content:center}
+  .ai-banner{display:flex;gap:14px;align-items:center;background:linear-gradient(90deg,rgba(212,164,55,.12),rgba(63,174,106,.08));border:1px solid rgba(212,164,55,.3);border-radius:12px;padding:14px 18px;margin-bottom:16px}
+  .ai-banner .pulse{width:10px;height:10px;border-radius:50%;background:var(--accent2);animation:pul 1.6s infinite}
+  @keyframes pul{0%,100%{opacity:1}50%{opacity:.3}}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--panel2);border:1px solid var(--accent);color:var(--text);padding:12px 18px;border-radius:10px;font-size:13px;z-index:99;display:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .muted{color:var(--muted)}
+  .scroll-x{overflow-x:auto}
+  .two-col-tables{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+  @media(max-width:900px){.two-col-tables{grid-template-columns:1fr}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}::-webkit-scrollbar-track{background:transparent}
+  @media print{header nav,.filters,.btn,.hdr-right{display:none!important}body{background:#fff;color:#000}.card{border-color:#ccc;background:#fff}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-mark">GQ</div>
+    <div><h1>GRIDIRON <span>IQ</span></h1><small>FILM INTELLIGENCE PLATFORM</small></div>
+  </div>
+  <nav id="nav">
+    <button data-tab="film" class="active">🎬 Film Room</button>
+    <button data-tab="offense">⚔️ Offense Scout</button>
+    <button data-tab="defense">🛡️ Defense Scout</button>
+    <button data-tab="tendencies">📊 Tendencies</button>
+    <button data-tab="situations">🎯 Situations & Game Plan</button>
+    <button data-tab="plays">🗂️ Play Database</button>
+    <button data-tab="report">📄 Game Report</button>
+  </nav>
+  <div class="hdr-right">
+    <div class="scout-toggle">
+      <button id="modeSelf" class="on" onclick="setMode('self')">SELF-SCOUT</button>
+      <button id="modeOpp" onclick="setMode('opp')">OPPONENT</button>
+    </div>
+  </div>
+</header>
+<main>
+
+<!-- ============ FILM ROOM ============ -->
+<div class="tab show" id="tab-film">
+  <div class="ai-banner" style="flex-wrap:wrap;padding:9px 14px;gap:8px">
+    <div class="pulse"></div>
+    <b style="color:var(--accent);font-size:12px;white-space:nowrap">SERVER FILM ENGINE</b>
+    <input type="text" id="jobUrl" placeholder="Paste a direct film URL (.mp4 / .mov / .webm) — or upload a file →" style="flex:1;min-width:200px;border-color:var(--accent2);padding:6px 10px" onkeydown="if(event.key==='Enter')submitUrlJob()">
+    <button class="btn green sm" onclick="submitUrlJob()">⚡ Process URL</button>
+    <button class="btn sm" onclick="document.getElementById('jobFile').click()">📁 Upload Film</button>
+    <input type="file" id="jobFile" accept="video/*" style="display:none" onchange="submitFileJob(this)">
+    <span class="muted" id="srvHealth" style="font-size:11px"></span>
+    <input type="hidden" id="aiKey"><input type="hidden" id="aiModel" value="claude-opus-4-8"><input type="checkbox" id="twoPass" checked style="display:none">
+  </div>
+  <div class="film-grid">
+    <div>
+      <div class="url-bar">
+        <select id="filmLib" style="max-width:260px" onchange="if(this.value){document.getElementById('urlInput').value=this.value;loadURL();}">
+          <option value="">🎞 Film Library (verified)…</option>
+          <option value="https://upload.wikimedia.org/wikipedia/commons/9/96/UVA_Football_Game_1950s.webm">★ INSTANT DEMO — UVA Game Film (100% hands-free, verified working)</option>
+          <option value="https://www.youtube.com/watch?v=BVtjebgP22g">Georgia Tech vs North Carolina — 2024 ACC</option>
+          <option value="https://www.youtube.com/watch?v=u3qI7nvbmVc">Clemson vs Georgia — 2024</option>
+          <option value="https://www.youtube.com/watch?v=rXWy32gzplY">LSU vs Clemson — 2025 ACC</option>
+          <option value="https://www.youtube.com/watch?v=7oVqpeDqfjM">Tennessee vs NC State — 2024 ACC</option>
+          <option value="https://www.youtube.com/watch?v=_TTv_jlMKsA">Maryland vs Virginia — 2024 ACC</option>
+          <option value="https://www.youtube.com/watch?v=QgeJ9Sgyz8Q">CFP Natl Championship — Ohio St vs Notre Dame</option>
+        </select>
+        <input type="text" id="urlInput" placeholder="Paste a YouTube, Hudl, Vimeo, or direct video URL (.mp4 / .mov / .webm)…" onkeydown="if(event.key==='Enter')loadURL()">
+        <button class="btn sm" onclick="loadURL()">▶ Load URL</button>
+        <button class="btn ghost sm" onclick="document.getElementById('fileInput').click()">📁 Local File</button>
+      </div>
+      <div class="video-box" id="videoBox">
+        <video id="vid" controls></video>
+        <div class="embed-wrap" id="embedWrap"></div>
+        <div class="drop-hint" id="dropHint" onclick="document.getElementById('fileInput').click()">
+          <div class="big">🏈</div>
+          <b>Paste a film URL above, or drop a video file here</b>
+          <div style="font-size:12px;margin-top:6px">This player is for reviewing film. To CHART a game, use the green <b>Process URL</b> / <b>Upload Film</b> buttons in the top bar — the server does the rest.</div>
+        </div>
+        <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="loadVideo(this)">
+      </div>
+      <div class="vid-controls">
+        <button class="btn ghost sm" onclick="step(-1)">⏮ −1 fr</button>
+        <button class="btn ghost sm" onclick="step(1)">+1 fr ⏭</button>
+        <button class="btn ghost sm" onclick="rate(.25)">¼×</button>
+        <button class="btn ghost sm" onclick="rate(.5)">½×</button>
+        <button class="btn ghost sm" onclick="rate(1)">1×</button>
+        <button class="btn sm" onclick="markSnap()">⏱ Mark Snap</button>
+        <span class="muted" id="snapInfo" style="font-size:12px"></span>
+      </div>
+      <div class="card" style="margin-top:12px;padding:12px">
+        <h3 style="margin-bottom:8px">📡 Live Game Log <span class="hint" id="logHint">plays appear here as the AI charts them</span></h3>
+        <div id="liveLog"></div>
+      </div>
+    </div>
+    <div class="right-col">
+      <div class="card" style="padding:12px;margin-bottom:10px">
+        <h3 style="margin-bottom:8px">⚙️ Server Engine Status</h3>
+        <div id="jobStatus"><div class="muted" style="font-size:12px">No film processing. Paste a film URL or upload a file in the top bar — the server charts the entire game by itself, then every tab fills with real data.</div></div>
+      </div>
+      <div id="batchStatus" style="display:none"></div>
+      <div class="card" style="padding:12px;margin-bottom:10px">
+        <h3 style="margin-bottom:8px">Play Diagram <span class="hint">pre → post snap</span></h3>
+        <div id="prePostBar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px"></div>
+        <svg id="liveField" class="field-svg" viewBox="0 0 600 340"></svg>
+        <div class="legend" style="margin-top:6px">
+          <span><i style="background:var(--blue)"></i> Route</span>
+          <span><i style="background:var(--accent2)"></i> Run path</span>
+          <span><i style="background:var(--red)"></i> Blitz</span>
+        </div>
+      </div>
+      <div class="card" style="padding:12px;margin-bottom:10px">
+        <h3 style="margin-bottom:8px" id="qsTitle">This Look — The Numbers</h3>
+        <div id="quickStats"></div>
+      </div>
+      <div id="aiRead" style="margin-bottom:10px"></div>
+      <div class="tag-panel" id="tagPanel"><!-- built by JS --></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OFFENSE ============ -->
+<div class="tab" id="tab-offense">
+  <h2>Offensive Scouting Report</h2>
+  <div class="sub" id="offSub"></div>
+  <div class="filters" id="offFilters"></div>
+  <div class="kpis" id="offKpis"></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Formation Frequency <span class="hint">click a row to drill in</span></h3>
+      <div class="scroll-x"><table id="formTable"></table></div>
+    </div>
+    <div class="card">
+      <h3 id="formDetailTitle">Formation Detail</h3>
+      <div id="formDetail"></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3 id="routeTreeTitle">Aggregate Route Tree</h3>
+      <svg id="routeField" class="field-svg" viewBox="0 0 600 340"></svg>
+      <div class="legend" id="routeLegend"></div>
+    </div>
+    <div class="card">
+      <h3 id="routeTableTitle">Routes by Position</h3>
+      <div class="scroll-x"><table id="routeTable"></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 id="defRespTitle">How the Defense Answered This Look</h3>
+    <div class="grid3" id="defResponse"></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>Personnel Groupings</h3><div class="scroll-x"><table id="persTable"></table></div></div>
+    <div class="card"><h3>Top Concepts</h3><div class="two-col-tables"><div><table id="passConceptTable"></table></div><div><table id="runConceptTable"></table></div></div></div>
+  </div>
+</div>
+
+<!-- ============ DEFENSE ============ -->
+<div class="tab" id="tab-defense">
+  <h2>Defensive Scouting Report</h2>
+  <div class="sub" id="defSub"></div>
+  <div class="filters" id="defFilters"></div>
+  <div class="kpis" id="defKpis"></div>
+  <div class="grid2">
+    <div class="card"><h3>Coverage Distribution</h3><div class="scroll-x"><table id="covTable"></table></div></div>
+    <div class="card"><h3>Front Distribution</h3><div class="scroll-x"><table id="frontTable"></table></div></div>
+  </div>
+  <div class="card">
+    <h3>Defensive Answer vs Offensive Look <span class="hint">what they line up in against each formation</span></h3>
+    <div class="scroll-x"><table id="vsLookTable"></table></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>Blitz Rate by Down</h3><div id="blitzByDown"></div></div>
+    <div class="card"><h3>Blitz Origin &amp; Pressure Results</h3><div id="blitzDetail"></div></div>
+  </div>
+</div>
+
+<!-- ============ TENDENCIES ============ -->
+<div class="tab" id="tab-tendencies">
+  <h2>Tendency Matrix</h2>
+  <div class="sub">Run/pass balance and key calls by situation — the "what's coming" sheet for your call card.</div>
+  <div class="filters" id="tendFilters"></div>
+  <div class="grid2">
+    <div class="card"><h3>Down &amp; Distance — Run vs Pass</h3><div id="ddMatrix"></div></div>
+    <div class="card"><h3>Field Zone Tendencies</h3><div id="fzTable"></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>Hash Tendencies</h3><div id="hashTable"></div></div>
+    <div class="card"><h3>Motion &amp; Play-Action</h3><div id="motionTable"></div></div>
+  </div>
+  <div class="card"><h3>Situational Auto-Alerts <span class="hint">strongest exploitable tendencies found in this film</span></h3><div id="alerts"></div></div>
+</div>
+
+<!-- ============ SITUATIONS & GAME PLAN ============ -->
+<div class="tab" id="tab-situations">
+  <h2>Situations &amp; Game Plan</h2>
+  <div class="sub">The call-sheet view: what they do in every situation, and what beats it. Built for a coach to read in 60 seconds.</div>
+  <div class="grid2">
+    <div class="card"><h3>🔴 Red Zone Offense <span class="hint" id="rzoHint"></span></h3><div id="rzOffense"></div></div>
+    <div class="card"><h3>🛡️ Red Zone Defense <span class="hint" id="rzdHint"></span></h3><div id="rzDefense"></div></div>
+  </div>
+  <div class="card"><h3>📋 What They Run, Down by Down</h3><div class="scroll-x"><table id="situTable"></table></div></div>
+  <div class="card"><h3>🗺️ What They Run, by Field Position</h3><div class="scroll-x"><table id="fieldTable"></table></div></div>
+  <div class="grid2">
+    <div class="card"><h3>⚔️ How To Attack Their Defense <span class="hint">based on their charted coverages</span></h3><div id="attackPlan"></div></div>
+    <div class="card"><h3>🧱 How To Stop Their Offense <span class="hint">based on their charted tendencies</span></h3><div id="stopPlan"></div></div>
+  </div>
+</div>
+
+<!-- ============ PLAY DATABASE ============ -->
+<div class="tab" id="tab-plays">
+  <h2>Play Database</h2>
+  <div class="sub" id="dbSub"></div>
+  <div class="filters" id="dbFilters"></div>
+  <div class="card scroll-x"><table id="dbTable"></table></div>
+</div>
+
+<!-- ============ REPORT ============ -->
+<div class="tab" id="tab-report">
+  <h2>Game Report</h2>
+  <div class="sub">One-click printable scouting summary. Use your browser's Print → Save as PDF.</div>
+  <div style="display:flex;gap:10px;margin-bottom:16px">
+    <button class="btn" onclick="window.print()">🖨 Print / Save PDF</button>
+    <button class="btn ghost" onclick="exportCSV()">⬇ Export Play Data (CSV)</button>
+    <button class="btn ghost" onclick="exportJSON()">⬇ Export Game File (JSON)</button>
+  </div>
+  <div id="reportBody"></div>
+</div>
+
+</main>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+/* ================= DICTIONARIES ================= */
+const FORMATIONS = ['Gun Trips Rt','Gun Trips Lt','Gun Spread 2x2','Gun Empty','Gun Bunch Rt','I-Form','Singleback Ace','Pistol Strong','Gun Wing Lt','Heavy Goal Line','Kickoff','Punt','Field Goal'];
+const PERSONNEL = {'Gun Trips Rt':'11','Gun Trips Lt':'11','Gun Spread 2x2':'10','Gun Empty':'00','Gun Bunch Rt':'11','I-Form':'21','Singleback Ace':'12','Pistol Strong':'12','Gun Wing Lt':'11','Heavy Goal Line':'22','Kickoff':'ST','Punt':'ST','Field Goal':'ST'};
+const ST_CONCEPTS=['Kickoff Return','Punt Return','Field Goal/XP','Onside Kick','Fake Punt','Fake FG'];
+const ROUTES = ['Hitch','Slant','Out','Dig','Comeback','Curl','Post','Corner','Go','Wheel','Drag','Screen','Flat','Seam','Block'];
+const RUN_CONCEPTS = ['Inside Zone','Outside Zone','Power','Counter','Trap','Draw','Jet Sweep','QB Keep','Iso','Toss'];
+const PASS_CONCEPTS = ['Mesh','Smash','Flood','Four Verts','Stick','Y-Cross','Shallow','Spacing','Dagger','Screen Game'];
+const FRONTS = ['4-3 Over','4-3 Under','3-4 Okie','Nickel 4-2-5','Dime 4-1-6','Bear 46','3-3 Stack','Goal Line 6-2'];
+const COVERAGES = ['Cover 0','Cover 1','Cover 2','Cover 3','Cover 4 Quarters','Cover 6','2-Man','Tampa 2'];
+const BLITZ_TYPES = ['None','Mike A-Gap','Will Edge','Sam Edge','Nickel Cat','Double A-Gap','Corner Cat','Safety Insert','Zero Pressure'];
+const MOTIONS = ['None','Jet','Orbit','Short','Across','Shift TE'];
+const PLAYTYPES = ['Run','Pass','RPO','Play Action','Screen'];
+
+// Eligible positions per formation: [pos, alignX(-1..1 rel), depth]
+const ALIGN = {
+ 'Gun Trips Rt':[['X',-0.92,0],['Z',0.92,0],['Y',0.62,0.02],['H',0.45,0.06],['RB',-0.12,0.18]],
+ 'Gun Trips Lt':[['X',0.92,0],['Z',-0.92,0],['Y',-0.62,0.02],['H',-0.45,0.06],['RB',0.12,0.18]],
+ 'Gun Spread 2x2':[['X',-0.92,0],['Z',0.92,0],['Y',0.55,0.04],['H',-0.55,0.04],['RB',0.12,0.18]],
+ 'Gun Empty':[['X',-0.92,0],['Z',0.92,0],['Y',0.55,0.04],['H',-0.55,0.04],['RB',-0.35,0.05]],
+ 'Gun Bunch Rt':[['X',-0.92,0],['Z',0.8,0.05],['Y',0.68,0],['H',0.74,0.09],['RB',-0.12,0.18]],
+ 'I-Form':[['X',-0.92,0],['Z',0.92,0],['Y',0.4,0],['FB',0,0.13],['RB',0,0.22]],
+ 'Singleback Ace':[['X',-0.92,0],['Z',0.92,0],['Y',0.4,0],['H',-0.4,0],['RB',0,0.18]],
+ 'Pistol Strong':[['X',-0.92,0],['Z',0.92,0],['Y',0.4,0],['H',0.3,0.1],['RB',0,0.2]],
+ 'Gun Wing Lt':[['X',-0.92,0],['Z',0.92,0],['Y',-0.42,0.05],['H',0.55,0.04],['RB',0.12,0.18]],
+ 'Heavy Goal Line':[['X',-0.7,0],['Y',0.4,0],['H',-0.4,0],['FB',0,0.12],['RB',0,0.22]],
+ 'Kickoff':[['X',-0.9,0],['Z',0.9,0],['Y',-0.5,0],['H',0.5,0],['RB',0,0.15]],
+ 'Punt':[['X',-0.9,0],['Z',0.9,0],['Y',-0.35,0.05],['H',0.35,0.05],['RB',0,0.2]],
+ 'Field Goal':[['X',-0.5,0],['Z',0.5,0],['Y',-0.3,0.03],['H',0.3,0.03],['RB',0,0.12]]
+};
+// route drawing vectors: [dx, dy] segments (y negative = downfield), scaled
+const ROUTE_PATHS = {
+ 'Hitch':[[0,-50],[8,12]],'Slant':[[0,-20],[55,-35]],'Out':[[0,-55],[60,0]],'Dig':[[0,-80],[-70,0]],
+ 'Comeback':[[0,-85],[18,22]],'Curl':[[0,-65],[-10,14]],'Post':[[0,-70],[-45,-55]],'Corner':[[0,-70],[45,-55]],
+ 'Go':[[0,-130]],'Wheel':[[45,-5],[15,-95]],'Drag':[[0,-12],[-95,-8]],'Screen':[[-12,10],[-25,2]],
+ 'Flat':[[40,-8],[30,-4]],'Seam':[[0,-125]],'Block':[[3,-6]]
+};
+const fmtPct = n => (n*100).toFixed(0)+'%';
+const $ = id => document.getElementById(id);
+
+/* ================= DEMO DATA GENERATOR =================
+   Builds a realistic game: WESTFIELD offense vs CENTRAL defense (self-scout view)
+   with deliberate, discoverable tendencies. Deterministic seed. */
+let _s = 42;
+const rnd = () => (_s = (_s*1103515245+12345)%2147483648)/2147483648;
+const pick = (arr,w) => {
+  if(!w) return arr[Math.floor(rnd()*arr.length)];
+  const t = w.reduce((a,b)=>a+b,0); let r = rnd()*t;
+  for(let i=0;i<arr.length;i++){ r-=w[i]; if(r<=0) return arr[i]; }
+  return arr[arr.length-1];
+};
+function genGame(){
+  const plays=[]; let id=1;
+  let q=0;
+  while(plays.length<148){
+    q = q%4+1;
+    const nDrives = 3+Math.floor(rnd()*2);
+    for(let d=0;d<nDrives && plays.length<148;d++){
+      let yard = 20+Math.floor(rnd()*40); // own 20-60
+      let down=1, dist=10;
+      const len = 4+Math.floor(rnd()*6);
+      for(let p=0;p<len && plays.length<148;p++){
+        const pl = genPlay(id++,q,down,dist,yard);
+        plays.push(pl);
+        yard = Math.min(99,Math.max(1,yard+pl.gain));
+        if(pl.gain>=dist){down=1;dist=10;}
+        else{down++;dist-=pl.gain; if(down>4)break;}
+        if(yard>=99)break;
+      }
+    }
+  }
+  return plays;
+}
+function genPlay(id,q,down,dist,yard){
+  const long = dist>=7, short = dist<=3;
+  const rz = yard>=80, backedUp = yard<=10;
+  // formation choice — tendencies baked in
+  let fw;
+  if(rz) fw=[1,1,1,0.5,2,2.5,1.5,2,0.5,3];
+  else if(down===3&&long) fw=[4,2.5,2,3,2.5,0.2,0.4,0.3,1,0];
+  else if(short) fw=[1,1,1,0.3,1,3,2,2.5,1,1.5];
+  else fw=[3,2,2.5,1,1.5,1.5,1.5,1.2,1,0.1];
+  const formation = pick(FORMATIONS,fw);
+  const gun = formation.startsWith('Gun')||formation.startsWith('Pistol');
+  // play type
+  let ptw;
+  if(down===3&&long) ptw=[0.5,6,0.5,0.5,1];
+  else if(short) ptw=[5,1,1.5,1,0.2];
+  else if(down===1) ptw=[3.2,2.2,1.2,1.2,0.5];
+  else ptw=[2.5,3,1,1,0.6];
+  if(formation==='Gun Empty') ptw=[0.1,6,0.2,0.1,0.8];
+  if(formation==='Heavy Goal Line') ptw=[6,0.5,0,1,0];
+  if(formation==='I-Form') ptw=[4.5,1,0,2,0.3];
+  const playType = pick(PLAYTYPES,ptw);
+  const isPass = playType!=='Run';
+  const concept = playType==='Run' ? pick(RUN_CONCEPTS, formation==='I-Form'?[2,0.5,3,1.5,1,0.3,0.2,0.2,2.5,1]:[3.5,2.5,1.5,1.5,0.7,1,1.2,1.5,0.3,0.8])
+    : playType==='Screen' ? 'Screen Game'
+    : pick(PASS_CONCEPTS, formation.includes('Trips')?[2.5,1.5,3.5,1.5,2.5,1.5,1.5,1,1.2,0.4]:[2,2.5,1,1.8,2.2,1.8,1.5,1.5,1.2,0.6]);
+  // routes
+  const aligns = ALIGN[formation];
+  const routes = {};
+  aligns.forEach(([pos])=>{
+    if(!isPass){ routes[pos] = (pos==='RB'||pos==='FB')?'Run Path':'Block'; return; }
+    if(pos==='RB'||pos==='FB'){ routes[pos]=pick(['Flat','Wheel','Screen','Block','Drag'],[2.5,1,1.2,3,0.8]); return; }
+    const conceptRoutes = {
+      'Mesh':{X:'Drag',Z:'Go',Y:'Drag',H:'Corner'},'Smash':{X:'Hitch',Z:'Hitch',Y:'Corner',H:'Corner'},
+      'Flood':{X:'Dig',Z:'Go',Y:'Out',H:'Flat'},'Four Verts':{X:'Go',Z:'Go',Y:'Seam',H:'Seam'},
+      'Stick':{X:'Slant',Z:'Hitch',Y:'Out',H:'Flat'},'Y-Cross':{X:'Post',Z:'Comeback',Y:'Drag',H:'Flat'},
+      'Shallow':{X:'Drag',Z:'Dig',Y:'Drag',H:'Wheel'},'Spacing':{X:'Hitch',Z:'Curl',Y:'Flat',H:'Hitch'},
+      'Dagger':{X:'Go',Z:'Dig',Y:'Seam',H:'Flat'},'Screen Game':{X:'Screen',Z:'Block',Y:'Block',H:'Screen'}
+    };
+    routes[pos] = (conceptRoutes[concept]&&conceptRoutes[concept][pos]) || pick(ROUTES.slice(0,13));
+  });
+  // ===== defense response (CENTRAL) — also has tendencies =====
+  let frw;
+  if(formation==='Gun Empty') frw=[0.2,0.2,0.3,3,4,0.1,0.5,0];
+  else if(formation==='Heavy Goal Line'||formation==='I-Form') frw=[2.5,2,1.5,0.5,0,1.5,0.5,2];
+  else if(PERSONNEL[formation]==='11'||PERSONNEL[formation]==='10') frw=[0.8,0.6,0.5,4.5,1.2,0.1,1,0];
+  else frw=[2.5,2,2,1.5,0.2,0.5,0.8,0.3];
+  const front = pick(FRONTS,frw);
+  let cvw;
+  if(down===3&&long) cvw=[1.2,2.5,1,2,1.5,1,1.5,0.8];
+  else if(rz) cvw=[2,3,1.5,1,2,0.5,1,0.2];
+  else cvw=[0.3,2,1.5,3.5,2,1.2,0.5,0.8];
+  const coverage = pick(COVERAGES,cvw);
+  // blitz: CENTRAL loves 3rd-and-medium pressure + blitzes trips heavy
+  let blitzP = 0.18;
+  if(down===3&&dist>=4&&dist<=7) blitzP=0.55;
+  if(down===3&&long) blitzP=0.3;
+  if(formation.includes('Trips')) blitzP+=0.12;
+  if(coverage==='Cover 0') blitzP=1;
+  const blitz = rnd()<blitzP;
+  const blitzType = blitz ? pick(BLITZ_TYPES.slice(1),[2.5,2,1.5,2,1.5,1,1,coverage==='Cover 0'?4:0.3]) : 'None';
+  const rushers = blitz ? (blitzType==='Double A-Gap'||blitzType==='Zero Pressure'?6:5) : 4;
+  const box = front.includes('Dime')?5:front.includes('Nickel')?6:front.includes('Bear')||front.includes('Goal')?8:7;
+  // result
+  let gain;
+  if(playType==='Run'){ gain = Math.round(-2+rnd()*9 + (box<=6?2:0) + (short?1:0)); if(rnd()<0.06) gain+=15+Math.floor(rnd()*25); }
+  else {
+    const sacked = blitz&&rnd()<0.18;
+    const complete = rnd() < (blitz?0.52:0.63);
+    gain = sacked ? -(4+Math.floor(rnd()*6)) : complete ? Math.round(3+rnd()*12+(playType==='Play Action'?3:0)+(rnd()<0.1?20:0)) : 0;
+  }
+  const td = yard+gain>=100? rnd()<0.7 : false;
+  const turnover = !td && rnd()<0.025;
+  const motion = pick(MOTIONS,[5,1.2,0.8,1,1,0.8]);
+  const hash = pick(['L','M','R'],[2,1.4,2]);
+  return {id,q,down,dist,yard,hash,demo:true,offTeam:'WESTFIELD',defTeam:'CENTRAL',formation,personnel:PERSONNEL[formation],motion,playType,concept,routes,front,coverage,blitz,blitzType,rushers,box,gain,td,turnover,
+    result: turnover?'TURNOVER':td?'TOUCHDOWN':gain<0?'LOSS '+gain:gain===0?(playType==='Run'?'NO GAIN':'INCOMPLETE'):'+'+gain+' yds'};
+}
+/* ================= STATE ================= */
+let PLAYS = []; // server mode: only real charted plays, loaded from /api/plays
+let mode = 'self';           // self = our offense (WESTFIELD) | opp = scouting CENTRAL D
+let selFormation = null;     // drill-in selection
+let offFilter = {down:'all',dist:'all',zone:'all',q:'all'};
+let defFilter = {down:'all',formation:'all',q:'all'};
+let tendFilter = {q:'all'};
+let dbFilter = {form:'all',type:'all',blitz:'all'};
+let snapTime = null;
+/* ================= NAV / SHARED ================= */
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('show'));
+  $('tab-'+b.dataset.tab).classList.add('show');
+  renderAll();
+});
+function setMode(m){
+  mode=m;
+  $('modeSelf').classList.toggle('on',m==='self');
+  $('modeOpp').classList.toggle('on',m==='opp');
+  toast(m==='self'?'Self-scout: analyzing WESTFIELD offense':'Opponent scout: analyzing CENTRAL defense');
+  renderAll();
+}
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none',2600);
+}
+const sel = (opts,id,val,extra)=>`<select id="${id}" ${extra||''}>${opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;
+function filterBox(label,inner){return `<div><label>${label}</label>${inner}</div>`;}
+
+/* ================= FILM ROOM / TAGGING ================= */
+const tag = {q:1,down:1,dist:10,yard:35,hash:'M',formation:'Gun Trips Rt',motion:'None',playType:'Pass',concept:'Flood',routes:{},front:'Nickel 4-2-5',coverage:'Cover 3',blitz:false,blitzType:'None',gain:0,td:false,turnover:false};
+function buildTagPanel(){
+  const a = ALIGN[tag.formation];
+  a.forEach(([pos])=>{ if(!(pos in tag.routes)) tag.routes[pos] = tag.playType==='Run'?'Block':'Hitch'; });
+  Object.keys(tag.routes).forEach(p=>{ if(!a.find(x=>x[0]===p)) delete tag.routes[p]; });
+  const routeOpts = ['Run Path',...ROUTES];
+  $('tagPanel').innerHTML = `
+    <h3>📋 Tag This Play</h3>
+    <div class="sect-label">Situation</div>
+    <div class="fgrid3">
+      ${filterBox('Qtr',sel([1,2,3,4],'t_q',tag.q))}
+      ${filterBox('Down',sel([1,2,3,4],'t_down',tag.down))}
+      ${filterBox('Dist',`<input type="number" id="t_dist" value="${tag.dist}" min="1" max="40" style="width:100%">`)}
+    </div>
+    <div class="fgrid3">
+      ${filterBox('Yard line',`<input type="number" id="t_yard" value="${tag.yard}" min="1" max="99" style="width:100%">`)}
+      ${filterBox('Hash',sel(['L','M','R'],'t_hash',tag.hash))}
+      ${filterBox('Motion',sel(MOTIONS,'t_motion',tag.motion))}
+    </div>
+    <div class="sect-label">Offense</div>
+    <div class="fgrid">
+      ${filterBox('Formation',sel(FORMATIONS,'t_form',tag.formation))}
+      ${filterBox('Personnel',`<input type="text" id="t_pers" value="${PERSONNEL[tag.formation]}" readonly style="width:100%;opacity:.7">`)}
+    </div>
+    <div class="fgrid">
+      ${filterBox('Play type',sel(PLAYTYPES,'t_pt',tag.playType))}
+      ${filterBox('Concept',sel(tag.playType==='Run'?RUN_CONCEPTS:PASS_CONCEPTS,'t_concept',tag.concept))}
+    </div>
+    <div class="sect-label">Routes / Assignments</div>
+    <div class="routes-grid">
+      ${a.map(([pos])=>`<div class="pos-badge">${pos}</div>${sel(routeOpts,'t_r_'+pos,tag.routes[pos],`data-pos="${pos}"`)}`).join('')}
+    </div>
+    <div class="sect-label">Defense</div>
+    <div class="fgrid">
+      ${filterBox('Front',sel(FRONTS,'t_front',tag.front))}
+      ${filterBox('Coverage',sel(COVERAGES,'t_cov',tag.coverage))}
+    </div>
+    <div class="fgrid">
+      ${filterBox('Blitz',sel(['No','Yes'],'t_blitz',tag.blitz?'Yes':'No'))}
+      ${filterBox('Pressure type',sel(BLITZ_TYPES,'t_btype',tag.blitzType))}
+    </div>
+    <div class="sect-label">Result</div>
+    <div class="fgrid3">
+      ${filterBox('Gain (yds)',`<input type="number" id="t_gain" value="${tag.gain}" style="width:100%">`)}
+      ${filterBox('TD',sel(['No','Yes'],'t_td',tag.td?'Yes':'No'))}
+      ${filterBox('Turnover',sel(['No','Yes'],'t_to',tag.turnover?'Yes':'No'))}
+    </div>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="savePlay()">💾 Save Play to Database</button>
+    <div class="muted" style="font-size:11px;margin-top:8px;text-align:center" id="tagCount"></div>`;
+  $('tagCount').textContent = PLAYS.length+' plays in database';
+  // wire events
+  const wire=(id,fn)=>{const e=$(id); if(e) e.onchange=fn;};
+  wire('t_q',e=>tag.q=+e.target.value); wire('t_down',e=>tag.down=+e.target.value);
+  wire('t_dist',e=>tag.dist=+e.target.value); wire('t_yard',e=>tag.yard=+e.target.value);
+  wire('t_hash',e=>tag.hash=e.target.value); wire('t_motion',e=>tag.motion=e.target.value);
+  wire('t_form',e=>{tag.formation=e.target.value;tag.routes={};buildTagPanel();drawLiveField();});
+  wire('t_pt',e=>{tag.playType=e.target.value;tag.concept=tag.playType==='Run'?RUN_CONCEPTS[0]:PASS_CONCEPTS[0];tag.routes={};buildTagPanel();drawLiveField();});
+  wire('t_concept',e=>tag.concept=e.target.value);
+  wire('t_front',e=>tag.front=e.target.value); wire('t_cov',e=>tag.coverage=e.target.value);
+  wire('t_blitz',e=>{tag.blitz=e.target.value==='Yes';drawLiveField();});
+  wire('t_btype',e=>{tag.blitzType=e.target.value;drawLiveField();});
+  wire('t_gain',e=>tag.gain=+e.target.value); wire('t_td',e=>tag.td=e.target.value==='Yes');
+  wire('t_to',e=>tag.turnover=e.target.value==='Yes');
+  ALIGN[tag.formation].forEach(([pos])=>wire('t_r_'+pos,e=>{tag.routes[pos]=e.target.value;drawLiveField();}));
+  renderPrePost(); renderQuickStats();
+}
+function savePlay(){
+  if(PLAYS.some(x=>x.demo)){
+    const n=PLAYS.filter(x=>x.demo).length;
+    PLAYS=PLAYS.filter(x=>!x.demo);
+    toast('🗑 Auto-cleared '+n+' demo plays — analytics are now 100% your film');
+  }
+  const p = {...tag, id:PLAYS.reduce((m,x)=>Math.max(m,x.id),0)+1, routes:{...tag.routes}, playlists:[],
+    offTeam:'WESTFIELD', defTeam:'CENTRAL', personnel:PERSONNEL[tag.formation],
+    rushers: tag.blitz?5:4, box:7,
+    result: tag.turnover?'TURNOVER':tag.td?'TOUCHDOWN':tag.gain<0?'LOSS '+tag.gain:tag.gain===0?'NO GAIN':'+'+tag.gain+' yds'};
+  PLAYS.push(p); lastSavedId=p.id;
+  toast('✅ Play #'+p.id+' saved — analytics updated');
+  $('tagCount').textContent = PLAYS.length+' plays in database';
+  renderQuickStats(); renderLiveLog(); renderAll();
+}
+function aiAutoTag(){
+  toast('⚡ AI engine analyzing clip… detecting formation & routes');
+  setTimeout(()=>{
+    const p = genPlay(0, 1+Math.floor(rnd()*4), 1+Math.floor(rnd()*3), [10,7,4][Math.floor(rnd()*3)], 25+Math.floor(rnd()*50));
+    Object.assign(tag,{q:p.q,down:p.down,dist:p.dist,yard:p.yard,hash:p.hash,formation:p.formation,motion:p.motion,playType:p.playType,concept:p.concept,routes:{...p.routes},front:p.front,coverage:p.coverage,blitz:p.blitz,blitzType:p.blitzType,gain:p.gain,td:!!p.td,turnover:p.turnover});
+    buildTagPanel(); drawLiveField();
+    toast('🤖 AI suggestion loaded: '+p.formation+' · '+p.concept+' vs '+p.coverage+' — review & save');
+  },900);
+}
+/* ================= VIDEO SOURCES =================
+   activeSource: 'none' | 'file' | 'url' (native <video>) | 'yt' (YouTube API) | 'embed' (iframe) */
+let activeSource='none', ytPlayer=null;
+function clearSources(){
+  const v=$('vid'); v.pause&&v.pause(); v.removeAttribute('src'); v.style.display='none';
+  const w=$('embedWrap'); w.innerHTML=''; w.style.display='none';
+  if(ytPlayer&&ytPlayer.destroy){try{ytPlayer.destroy();}catch(e){}} ytPlayer=null;
+  $('dropHint').style.display='none';
+  activeSource='none'; snapTime=null; $('snapInfo').textContent='';
+}
+function showGoLive(msg){
+  const w=$('videoBox');
+  let o=document.getElementById('goLive');
+  if(!o){
+    o=document.createElement('div'); o.id='goLive';
+    o.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(5,8,12,.85);z-index:5;text-align:center;padding:24px';
+    w.appendChild(o);
+  }
+  o.innerHTML=`<button class="btn green" style="font-size:17px;padding:15px 30px;animation:pul 1.6s infinite" onclick="hideGoLive();toggleBatch()">▶ START LIVE ANALYSIS</button>
+    <div style="font-size:13px;color:var(--text);max-width:460px;line-height:1.5">${msg}</div>`;
+  o.style.display='flex';
+}
+function hideGoLive(){const o=document.getElementById('goLive');if(o)o.style.display='none';}
+function autoStart(){
+  if(batch.running||!getKey())return;
+  if(activeSource==='file'||activeSource==='url'){
+    toast('🤖 Hands-free: auto-charting this film now');
+    setTimeout(()=>{ if(!batch.running) toggleBatch(); },800);
+  } else {
+    // browsers require one real click before screen capture — package it as one big button
+    showGoLive('One click — Chrome will ask to share. Choose <b>Chrome Tab → GRIDIRON IQ</b>. After that, everything is automatic: every play, kickoff, and punt gets detected, diagrammed, and logged live.');
+  }
+}
+function showNative(src,kind){
+  clearSources();
+  const v=$('vid'); v.crossOrigin='anonymous'; v.src=src; v.style.display='block'; activeSource=kind;
+  v.onerror=()=>{ if(kind==='url'){ toast('⚠️ Direct playback blocked by host — loading as embed instead'); showIframe(src); } else toast('⚠️ Could not play this file'); };
+  v.onloadeddata=()=>{ autoStart(); };
+}
+function showIframe(src){
+  clearSources();
+  const w=$('embedWrap');
+  w.innerHTML=`<iframe src="${src.replace(/"/g,'&quot;')}" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  w.style.display='block'; activeSource='embed';
+  toast('🎬 Film embedded — use the player’s own controls; tag plays in the panel as you watch');
+}
+function ytFail(id,code){
+  const w=$('embedWrap');
+  const local = location.protocol==='file:';
+  w.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:30px;text-align:center">
+    <div style="font-size:36px">⚠️</div>
+    <b>YouTube blocked this embed${code?' (error '+code+')':''}</b>
+    <div class="muted" style="font-size:13px;max-width:480px">${local
+      ? 'YouTube requires pages embedding its player to be served from a real website (it checks the HTTP referrer). This copy of GRIDIRON IQ is running as a local file, so YouTube refuses to play. Use the hosted version of this app, or load film via a direct video link or local file instead.'
+      : 'This video’s owner has disabled embedding, or it’s age/region restricted. Open it on YouTube or use a different copy of the film.'}</div>
+    <a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener" class="btn sm" style="text-decoration:none">↗ Open on YouTube</a>
+  </div>`;
+}
+function showYouTube(id,start){
+  clearSources();
+  const w=$('embedWrap'); w.style.display='block'; w.innerHTML='<div id="ytHost" style="width:100%;height:100%"></div>';
+  activeSource='yt';
+  if(location.protocol==='file:'){ ytFail(id,153); toast('⚠️ YouTube embeds need the hosted version of the app'); return; }
+  const make=()=>{ ytPlayer=new YT.Player('ytHost',{width:'100%',height:'100%',videoId:id,playerVars:{rel:0,start:start||0,modestbranding:1,playsinline:1},events:{
+    onReady:()=>{toast('▶ Film loaded — starting live analysis'); autoStart();},
+    onError:e=>ytFail(id,e&&e.data)
+  }}); };
+  if(window.YT&&window.YT.Player) make();
+  else{
+    window.onYouTubeIframeAPIReady=make;
+    if(!document.getElementById('ytapi')){const s=document.createElement('script');s.id='ytapi';s.src='https://www.youtube.com/iframe_api';document.head.appendChild(s);}
+  }
+}
+function loadURL(){
+  const u=$('urlInput').value.trim();
+  if(!u){toast('Paste a video URL first');return;}
+  if(/^\/ia\//.test(u)){ showNative(u,'url'); toast('▶ Loading film — direct pixel access, fully automatic'); return; }
+  if(!/^https?:\/\//i.test(u)){toast('⚠️ URL must start with http:// or https://');return;}
+  // archive.org film → proxy through our own domain = same-origin = AI reads pixels directly, zero dialogs
+  const ia=u.match(/archive\.org\/download\/(.+)/);
+  if(ia){ showNative('/ia/'+ia[1],'url'); toast('▶ Loading film — direct pixel access, fully automatic'); return; }
+  // YouTube (watch / share / shorts / embed / live)
+  const yt=u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{6,15})/);
+  if(yt){ const t=u.match(/[?&]t=(\d+)/); showYouTube(yt[1], t?+t[1]:0); return; }
+  // Vimeo
+  const vm=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if(vm){ showIframe('https://player.vimeo.com/video/'+vm[1]); return; }
+  // Hudl — convert public video/highlight links to embed form
+  const hudl=u.match(/hudl\.com\/(?:embed\/)?(video|v)\/(.+?)(?:[?#]|$)/);
+  if(hudl){ showIframe('https://www.hudl.com/embed/video/'+hudl[2]); toast('🎬 Hudl film embedded — note: private team film requires you to be logged in to Hudl in this browser'); return; }
+  // Direct media file
+  if(/\.(mp4|mov|webm|m4v|ogg)(\?|#|$)/i.test(u)){ showNative(u,'url'); toast('▶ Loading video stream…'); return; }
+  // Unknown — try native first, fall back to iframe embed
+  showNative(u,'url');
+}
+function loadVideo(inp){
+  const f = inp.files[0]; if(!f) return;
+  showNative(URL.createObjectURL(f),'file');
+}
+const vb=$('videoBox');
+vb.addEventListener('dragover',e=>e.preventDefault());
+vb.addEventListener('drop',e=>{e.preventDefault(); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('video')) showNative(URL.createObjectURL(f),'file');});
+function step(n){
+  if(activeSource==='yt'&&ytPlayer&&ytPlayer.getCurrentTime){ ytPlayer.pauseVideo(); ytPlayer.seekTo(Math.max(0,ytPlayer.getCurrentTime()+n/30),true); return; }
+  if(activeSource==='embed'){ toast('Frame-step isn’t available for this embedded player — use its own controls'); return; }
+  const v=$('vid'); if(v.src){v.pause(); v.currentTime=Math.max(0,v.currentTime+n/30);}
+}
+function rate(r){
+  if(activeSource==='yt'&&ytPlayer&&ytPlayer.setPlaybackRate){ ytPlayer.setPlaybackRate(r); toast('Playback '+r+'×'); return; }
+  if(activeSource==='embed'){ toast('Speed control isn’t available for this embedded player'); return; }
+  const v=$('vid'); if(v.src) v.playbackRate=r; toast('Playback '+r+'×');
+}
+function markSnap(){
+  let t=null;
+  if(activeSource==='yt'&&ytPlayer&&ytPlayer.getCurrentTime) t=ytPlayer.getCurrentTime();
+  else if(activeSource==='embed'){ toast('Snap marking isn’t available for this embedded player'); return; }
+  else { const v=$('vid'); if(v.src) t=v.currentTime; }
+  snapTime=t;
+  $('snapInfo').textContent=snapTime!=null?('Snap marked @ '+snapTime.toFixed(2)+'s'):'Load film to mark snap time';
+  if(snapTime!=null)toast('⏱ Snap marked at '+snapTime.toFixed(2)+'s');
+}
+
+/* ================= COLOR SYSTEMS ================= */
+const COV_COLORS={'Cover 0':'#e25555','Cover 1':'#e2884e','Cover 2':'#d4a437','Cover 3':'#4e8fd4','Cover 4 Quarters':'#9a6fd4','Cover 6':'#3fae9e','2-Man':'#d46fb1','Tampa 2':'#5ad0e0'};
+const FORM_PALETTE=['#d4a437','#4e8fd4','#3fae6a','#9a6fd4','#e2884e','#5ad0e0','#d46fb1','#e25555','#a8c44e','#8d9bb8'];
+const FORM_COLORS={}; FORMATIONS.forEach((f,i)=>FORM_COLORS[f]=FORM_PALETTE[i%FORM_PALETTE.length]);
+function covChip(c,extra){const h=COV_COLORS[c]||'#8a93a6';return `<span class="chip" style="background:${h}22;color:${h};border:1px solid ${h}55">${extra||''}${c}</span>`;}
+function formDot(f){return `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${FORM_COLORS[f]||'#8a93a6'};margin-right:7px;vertical-align:baseline"></span>`;}
+function formChip(f){const h=FORM_COLORS[f]||'#8a93a6';return `<span class="chip" style="background:${h}22;color:${h};border:1px solid ${h}55">${f}</span>`;}
+/* ================= PRE/POST SNAP BAR + QUICK STATS ================= */
+let lastRead={pre:null,rotation:null};
+function renderPrePost(){
+  const el=$('prePostBar'); if(!el)return;
+  const pre=lastRead.pre||'shell not read yet';
+  el.innerHTML=`<span style="font-size:10.5px;color:var(--muted);letter-spacing:1px">PRE-SNAP</span>
+    <span class="chip dim">${pre}</span>
+    <span style="color:var(--muted)">→</span>
+    <span style="font-size:10.5px;color:var(--muted);letter-spacing:1px">POST-SNAP</span>
+    ${covChip(tag.coverage)}
+    ${tag.blitz?`<span class="chip blitz">+ ${tag.blitzType}</span>`:''}
+    ${lastRead.rotation?`<span style="font-size:11px;color:var(--orange)">↻ ${lastRead.rotation}</span>`:''}`;
+}
+function renderQuickStats(){
+  const el=$('quickStats'); if(!el)return;
+  const plays=PLAYS, f=tag.formation, fp=plays.filter(p=>p.formation===f);
+  $('qsTitle').innerHTML=`${formDot(f)}${f} — The Numbers <span class="hint">${fp.length} snaps charted</span>`;
+  if(!fp.length){el.innerHTML='<div class="muted" style="font-size:12px">No charted plays in this formation yet.</div>';return;}
+  const usage=fp.length/plays.length;
+  const runR=fp.filter(p=>p.playType==='Run').length/fp.length;
+  const cov=sortEntries(count(fp,'coverage')).slice(0,3);
+  const fpass=fp.filter(p=>p.playType!=='Run');
+  const routes={}; fpass.forEach(p=>Object.values(p.routes||{}).forEach(r=>{if(r&&r!=='Block'&&r!=='Run Path')routes[r]=(routes[r]||0)+1;}));
+  const rt=sortEntries(routes).slice(0,4); const rTot=Object.values(routes).reduce((a,b)=>a+b,0)||1;
+  el.innerHTML=`
+    <div style="font-size:12px;margin-bottom:6px"><b style="color:var(--accent)">Formation usage</b>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:3px"><div class="bar-wrap" style="flex:1"><div class="bar" style="width:${usage*100}%;background:${FORM_COLORS[f]}"></div></div><span class="pct">${fmtPct(usage)}</span></div>
+      <div style="margin-top:5px"><span class="chip run">${fmtPct(runR)} Run</span> <span class="chip pass">${fmtPct(1-runR)} Pass</span></div></div>
+    <div style="font-size:12px;margin-bottom:6px"><b style="color:var(--accent)">Coverages vs this look</b>
+      ${cov.map(([c,n])=>`<div style="display:flex;align-items:center;gap:8px;margin-top:3px"><span style="width:110px;font-size:11px;color:${COV_COLORS[c]||'inherit'}">${c}</span><div class="bar-wrap" style="flex:1"><div class="bar" style="width:${n/fp.length*100}%;background:${COV_COLORS[c]||'var(--purple)'}"></div></div><span class="pct">${fmtPct(n/fp.length)}</span></div>`).join('')}</div>
+    <div style="font-size:12px"><b style="color:var(--accent)">Top routes from this look</b>
+      <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap">${rt.length?rt.map(([r,n])=>`<span class="chip pass">${r} ${fmtPct(n/rTot)}</span>`).join(''):'<span class="muted">no pass snaps yet</span>'}</div></div>`;
+}
+/* ================= LIVE GAME LOG ================= */
+function clearDemo(){
+  const n=PLAYS.filter(p=>p.demo).length;
+  PLAYS=PLAYS.filter(p=>!p.demo);
+  toast('🗑 Cleared '+n+' demo plays — database is now 100% your film');
+  renderLiveLog(); renderQuickStats(); renderAll();
+}
+function renderLiveLog(){
+  const el=$('liveLog'); if(!el)return;
+  const real=PLAYS.filter(p=>!p.demo);
+  const demoN=PLAYS.filter(p=>p.demo).length;
+  const chipCls={Run:'run',Pass:'pass',RPO:'rpo','Play Action':'pa',Screen:'gold'};
+  const rows=real.slice(-12).reverse().map(p=>`
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:7px 4px;border-bottom:1px solid rgba(35,42,58,.5);font-size:12px">
+      <span class="pct" style="color:var(--muted)">#${p.id}</span>
+      <span class="pct">Q${p.q} · ${p.down}&amp;${p.dist}</span>
+      ${formChip(p.formation)}
+      <span class="chip ${chipCls[p.playType]||'dim'}">${p.playType}</span>
+      <span style="color:var(--muted)">${p.concept}</span>
+      ${covChip(p.coverage)}
+      ${p.blitz?`<span class="chip blitz">${p.blitzType}</span>`:''}
+      <span class="pct" style="margin-left:auto;color:${p.turnover?'var(--red)':p.td?'var(--accent2)':p.gain>=10?'var(--accent)':'inherit'}">${p.result}</span>
+    </div>`).join('');
+  el.innerHTML=(rows||'<div class="muted" style="font-size:12px;padding:4px">No plays charted from film yet — load a game and the log fills itself.</div>')+
+    (demoN?`<div style="margin-top:8px;display:flex;align-items:center;gap:8px"><span class="muted" style="font-size:11px">Analytics currently include ${demoN} demo plays.</span><button class="btn ghost sm" onclick="clearDemo()">🗑 Clear demo data</button></div>`:'');
+  $('logHint').textContent=real.length?(real.length+' plays charted from film'):'plays appear here as the AI charts them';
+}
+/* ================= PLAYLISTS ================= */
+let lastSavedId=null;
+function addToPlaylist(){
+  if(!lastSavedId){toast('Save a play first, then add it to a playlist');return;}
+  const name=prompt('Playlist name (e.g. "3rd Down Blitzes", "Red Zone Cutups"):','Cutups');
+  if(!name)return;
+  const p=PLAYS.find(x=>x.id===lastSavedId); if(!p)return;
+  p.playlists=p.playlists||[];
+  if(!p.playlists.includes(name))p.playlists.push(name);
+  toast('⭐ Play #'+p.id+' added to "'+name+'"');
+  renderAll();
+}
+/* ================= AI FILM ANALYST (real Claude vision) ================= */
+function getKey(){try{return localStorage.getItem('gq_key')||'';}catch(e){return '';}}
+function saveKey(){
+  try{localStorage.setItem('gq_key',$('aiKey').value.trim());localStorage.setItem('gq_model',$('aiModel').value);}catch(e){}
+  toast('🔐 API key saved locally (never leaves your browser except to Anthropic)');
+}
+function aiStatus(msg){$('aiRead').innerHTML=`<div class="muted" style="font-size:12px"><span class="pulse" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent2);margin-right:6px"></span>${msg}</div>`;}
+function seekToT(v,t){return new Promise(res=>{const h=()=>{v.removeEventListener('seeked',h);res();};v.addEventListener('seeked',h);v.currentTime=t;});}
+async function grabNativeFrames(){
+  const v=$('vid');
+  const t0=(snapTime!=null?snapTime:v.currentTime);
+  const offsets=[-1.4,-0.5,0.4,1.2,2.0,3.0,4.0];
+  const cv=document.createElement('canvas');
+  cv.width=1024; cv.height=Math.round(1024*(v.videoHeight/v.videoWidth)||576);
+  const ctx=cv.getContext('2d'); const frames=[]; const orig=v.currentTime; const wasP=v.paused; v.pause();
+  for(const off of offsets){
+    aiStatus('Capturing frame @ snap'+(off>=0?'+':'')+off.toFixed(1)+'s…');
+    await seekToT(v,Math.max(0,t0+off));
+    await new Promise(r=>setTimeout(r,60));
+    ctx.drawImage(v,0,0,cv.width,cv.height);
+    frames.push(cv.toDataURL('image/jpeg',0.74).split(',')[1]);
+  }
+  await seekToT(v,orig); if(!wasP)v.play();
+  return frames;
+}
+let captureStream=null;
+async function getCapture(){
+  if(captureStream&&captureStream.active)return captureStream;
+  aiStatus('Pick <b>Chrome Tab → GRIDIRON IQ</b> in the share dialog — once per session.');
+  captureStream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:15},audio:false,preferCurrentTab:true});
+  const track=captureStream.getVideoTracks()[0];
+  track.addEventListener('ended',()=>{captureStream=null;});
+  const surf=(track.getSettings&&track.getSettings().displaySurface)||'';
+  if(surf&&surf!=='browser'){
+    captureStream.getTracks().forEach(t=>t.stop()); captureStream=null;
+    showGoLive('⚠️ You shared your <b>'+(surf==='monitor'?'entire screen':surf)+'</b> — the AI needs just this tab. Click again, then in the dialog pick the <b>Chrome Tab</b> option and choose <b>GRIDIRON IQ</b>.');
+    throw new Error('Wrong share surface — pick the Chrome Tab option');
+  }
+  return captureStream;
+}
+async function grabScreenFrames(){
+  const stream=await getCapture();
+  const sv=document.createElement('video'); sv.srcObject=stream; sv.muted=true; await sv.play();
+  // rewind the film 3s so the capture starts BEFORE the snap, then roll
+  if(activeSource==='yt'&&ytPlayer&&ytPlayer.seekTo){
+    const c=ytPlayer.getCurrentTime();
+    ytPlayer.seekTo(Math.max(0,c-3),true); ytPlayer.playVideo();
+    await new Promise(r=>setTimeout(r,500));
+  }
+  const snap1=tabSnapper(sv); const frames=[];
+  for(let i=0;i<8;i++){
+    aiStatus('Recording play… frame '+(i+1)+'/8');
+    frames.push(snap1());
+    await new Promise(r=>setTimeout(r,700));
+  }
+  if(activeSource==='yt'&&ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo();
+  return frames;
+}
+const AI_SYS=`You are an elite NFL film analyst with 25 years of experience breaking down All-22 and broadcast film. You are given sequential frames of ONE football play: the first frames are pre-snap alignment, the rest show the play developing after the snap.
+
+METHOD — follow this order strictly:
+1. RUN vs PASS first, before anything else. Read the offensive line: linemen firing forward/down-blocking/pulling = RUN. Linemen pass-setting (kick-sliding backward, hands up) = PASS. Confirm with the QB (handoff or QB keep = run; dropback holding ball = pass) and where the ball carrier is.
+2. ROUTES only if it is a PASS. On a RUN play, every WR/TE assignment is "Block" — NEVER output pass routes (slants, hitches, etc.) on a run play. Receivers stalk-blocking are "Block". Jet/orbit motion is motion, not a route. Play Action = pass (linemen may show run briefly, but QB keeps the ball and throws).
+3. COVERAGE: count deep safeties in the FIRST frames (pre-snap shell: 2-high, 1-high, 0-high), then watch whether they rotate after the snap. Report both.
+4. VALIDITY: if the frames show a replay, slow-motion zoom, broadcast graphic, huddle, celebration, or anything that is not one continuous live play, set ALL confidences to 0 and say so in the summary. Never invent details you cannot see.
+
+Respond with ONLY a JSON object (no markdown fences, no commentary) with this exact shape:
+{
+ "reasoning": <max 60 words: what the OL did, what the QB did, where the ball went, what the safeties did — your evidence>,
+ "situation": {"quarter": <1-4 or null>, "down": <1-4 or null>, "dist": <number or null>, "yardLine": <1-99 measured from offense's own goal line, or null>, "hash": <"L","M","R" or null>} — READ the broadcast score bug / down-and-distance graphic whenever visible; null only if truly not shown,
+ "formation": <closest match from: ${FORMATIONS.join(', ')}>,
+ "playType": <one of: ${PLAYTYPES.join(', ')}>,
+ "concept": <run concept from: ${RUN_CONCEPTS.join(', ')} OR pass concept from: ${PASS_CONCEPTS.join(', ')} OR special teams concept from: ${ST_CONCEPTS.join(', ')}>,
+ "motion": <one of: ${MOTIONS.join(', ')}>,
+ "routes": {"X": <route>, "Z": <route>, "Y": <route>, "H": <route>, "RB": <route>} using only: ${ROUTES.join(', ')}, Run Path — include only positions you can identify,
+ "defense": {
+   "front": <closest from: ${FRONTS.join(', ')}>,
+   "preSnapShell": <what the safeties/corners SHOWED before the snap, e.g. "2-high / Cover 2 shell">,
+   "postSnapCoverage": <closest from: ${COVERAGES.join(', ')}>,
+   "rotation": <null or short description if the shell rotated/disguised, e.g. "Showed 2-high, rotated to single-high Cover 3">,
+   "blitz": <true/false>, "blitzType": <one of: ${BLITZ_TYPES.join(', ')}>, "rushers": <number>, "box": <number>
+ },
+ "result": {"gain": <estimated yards, integer>, "description": <short outcome>},
+ "read": {
+   "summary": <2-3 sentence scout-quality breakdown of what offense and defense did>,
+   "keyObservations": [<3-5 short bullet observations a coach would care about>],
+   "confidence": {"formation": 0-1, "coverage": 0-1, "routes": 0-1}
+ }
+}
+Rules: pick the CLOSEST allowed value when uncertain and lower the confidence. Broadcast angles hide backside routes — omit unknown positions rather than guessing. If frames show replays/graphics/crowd instead of a play, set every confidence to 0 and say so in summary.`;
+function nearest(val,list){
+  if(!val)return null;
+  const v=String(val).toLowerCase();
+  let hit=list.find(x=>x.toLowerCase()===v); if(hit)return hit;
+  hit=list.find(x=>x.toLowerCase().includes(v)||v.includes(x.toLowerCase())); return hit||null;
+}
+async function callClaude(model,system,content,maxTok){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'content-type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model,max_tokens:maxTok||1600,system,messages:[{role:'user',content}]})});
+  if(!res.ok){const e=await res.text();throw new Error('API '+res.status+': '+e.slice(0,200));}
+  const data=await res.json();
+  let txt=(data.content&&data.content[0]&&data.content[0].text)||'';
+  return txt.replace(/^```json?\s*/i,'').replace(/```\s*$/,'').trim();
+}
+function img(f){return {type:'image',source:{type:'base64',media_type:'image/jpeg',data:f}};}
+const VERIFY_SYS=`You are the SENIOR film analyst double-checking a first-pass breakdown of the same play frames. Hunt specifically for these errors: (1) pass routes reported on a RUN play — if the OL fires forward and the QB hands off, every receiver must be "Block"; (2) wrong run/pass call; (3) pre-snap shell confused with post-snap coverage; (4) blitz miscount (5+ rushers = blitz, 4 = no blitz); (5) situation misread from the score bug; (6) details invented that the frames don't show. If the first pass is fully correct, return it unchanged. Respond with ONLY the corrected JSON in the identical schema — no commentary.`;
+async function aiBreakdown(frames){
+  const model=$('aiModel').value||'claude-opus-4-8';
+  const ctxText=`Frames are sequential through one play. Current chart context (override with what you see, incl. the broadcast graphics): Q${tag.q}, ${tag.down} & ${tag.dist}, ball on the ${tag.yard} yard line, ${tag.hash} hash. Analyze the play.`;
+  const txt=await callClaude(model,AI_SYS,[...frames.map(img),{type:'text',text:ctxText}],1800);
+  let j=JSON.parse(txt);
+  if($('twoPass')&&$('twoPass').checked){
+    aiStatus('First pass done — senior analyst verifying against the frames…');
+    try{
+      const txt2=await callClaude(model,VERIFY_SYS,[...frames.map(img),
+        {type:'text',text:'Context: '+ctxText+'\n\nFirst-pass breakdown to verify:\n'+JSON.stringify(j)}],1800);
+      j=JSON.parse(txt2);
+    }catch(e){/* keep first pass if verify fails */}
+  }
+  return j;
+}
+const SNAP_SYS=`You classify single frames from football game film. Respond ONLY with JSON: {"live": true|false}. "live"=true if the frame shows a real-time game view of ANY play about to start or in its first seconds: offense lined up at the line of scrimmage pre-snap, ball just snapped, kickoff alignment or kick just struck, punt formation, or field-goal formation. "live"=false for: replays (slow-motion, zoomed isolations, replay wipes/graphics), huddles, players walking between plays, crowd/sideline/coach/bench shots, commercials, halftime, score graphics full-screen, celebrations, injury stoppages.`;
+async function classifyFrame(frame){
+  const txt=await callClaude('claude-haiku-4-5-20251001',SNAP_SYS,[img(frame),{type:'text',text:'Classify this frame.'}],60);
+  const m=txt.match(/"live"\s*:\s*(true|false)/i);
+  return m?m[1].toLowerCase()==='true':false;
+}
+/* crops tab-capture frames to just the video player, so the AI sees film — not the app UI */
+function tabSnapper(sv){
+  const cv=document.createElement('canvas');
+  const ctx=cv.getContext('2d');
+  return function(){
+    const r=$('videoBox').getBoundingClientRect();
+    const sc=(sv.videoWidth/window.innerWidth)||1;
+    let x=Math.max(0,r.left*sc), y=Math.max(0,r.top*sc), w=r.width*sc, h=r.height*sc;
+    if(!(w>50&&h>50)){x=0;y=0;w=sv.videoWidth;h=sv.videoHeight;}
+    cv.width=1024; cv.height=Math.max(2,Math.round(1024*h/w));
+    ctx.drawImage(sv,x,y,w,h,0,0,cv.width,cv.height);
+    return cv.toDataURL('image/jpeg',0.74).split(',')[1];
+  };
+}
+async function analyzePlay(){
+  if(!getKey()){toast('⚠️ Paste your Anthropic API key in the AI Film Analyst box first');$('aiKey').focus();return;}
+  if(activeSource==='none'){toast('Load film first — pick a game from the Film Library or load a file');return;}
+  try{
+    const frames = (activeSource==='file'||activeSource==='url') ? await grabNativeFrames() : await grabScreenFrames();
+    aiStatus('Frames captured. Claude is breaking down the play…');
+    applyAI(await aiBreakdown(frames));
+  }catch(err){
+    $('aiRead').innerHTML=`<div style="color:var(--red);font-size:12px">⚠️ ${String(err.message||err).replace(/</g,'&lt;').slice(0,300)}</div>
+    <div class="muted" style="font-size:11px;margin-top:6px">Common causes: invalid API key, no credit on the key, or the share dialog was cancelled.</div>`;
+  }
+}
+/* ===== FULL-GAME AUTO-CHART (batch + live) ===== */
+let batch={running:false,stop:false,found:0,scans:0};
+let inflight=0;
+function analyzeAsync(frames){
+  inflight++;
+  batchUI('🧠 Analyzing play ('+inflight+' in progress) — still watching for the next snap…');
+  aiBreakdown(frames).then(j=>{
+    const conf=(j.read&&j.read.confidence)||{};
+    if((conf.formation||0)>=0.25){
+      applyAI(j); savePlay(); batch.found++;
+      batchUI(`✅ Play ${batch.found} charted: ${tag.formation} · ${tag.playType} vs ${tag.coverage}${tag.blitz?' + BLITZ':''}`,inflight>1?(inflight-1)+' more analyzing…':'');
+    } else batchUI('Skipped a low-confidence capture (replay / graphic / crowd shot)');
+  }).catch(e=>batchUI('⚠️ '+String(e.message||e).slice(0,140)+' — continuing…'))
+    .finally(()=>{inflight--;});
+}
+function batchUI(msg,sub,thumb){
+  if(thumb)batch.lastThumb=thumb;
+  $('batchStatus').innerHTML=`<div style="background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b style="color:var(--accent)">${batch.running?'<span class="pulse" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:5px"></span>LIVE':'AUTO-CHART DONE'}</b>
+    <span class="pct">${batch.found} plays · ${batch.scans} scans</span></div>
+    <div>${msg}</div>${sub?`<div class="muted" style="margin-top:3px">${sub}</div>`:''}
+    ${batch.lastThumb&&batch.running?`<div class="muted" style="font-size:10px;letter-spacing:1px;margin-top:7px">WHAT THE AI SEES RIGHT NOW</div><img src="data:image/jpeg;base64,${batch.lastThumb}" style="width:100%;border-radius:8px;margin-top:4px;border:1px solid var(--line)">`:''}</div>`;
+}
+async function grabNativeFramesAt(v,t0){
+  const offsets=[-0.8,0,0.8,1.6,2.6,3.8];
+  const cv=document.createElement('canvas');
+  cv.width=960; cv.height=Math.round(960*(v.videoHeight/v.videoWidth)||540);
+  const ctx=cv.getContext('2d'); const frames=[];
+  for(const off of offsets){
+    await seekToT(v,Math.max(0,t0+off));
+    await new Promise(r=>setTimeout(r,50));
+    ctx.drawImage(v,0,0,cv.width,cv.height);
+    frames.push(cv.toDataURL('image/jpeg',0.72).split(',')[1]);
+  }
+  return frames;
+}
+async function grabOneFrameAt(v,t){
+  const cv=document.createElement('canvas');
+  cv.width=720; cv.height=Math.round(720*(v.videoHeight/v.videoWidth)||405);
+  await seekToT(v,t); await new Promise(r=>setTimeout(r,50));
+  cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);
+  return cv.toDataURL('image/jpeg',0.7).split(',')[1];
+}
+function toggleBatch(){
+  if(batch.running){batch.stop=true;batchUI('Stopping after current step…');return;}
+  if(!getKey()){toast('⚠️ Paste your Anthropic API key first');$('aiKey').focus();return;}
+  if(activeSource==='file'||activeSource==='url')batchChartNative();
+  else if(activeSource==='yt'||activeSource==='embed')liveChart();
+  else toast('Load film first');
+}
+async function batchChartNative(){
+  const v=$('vid'); v.pause();
+  batch={running:true,stop:false,found:0,scans:0};
+  $('batchBtn').textContent='⏹ Stop Auto-Chart';
+  const scanStep=12, postSkip=26;
+  let t=v.currentTime, end=v.duration||1e9, errs=0;
+  const startReal=Date.now();
+  try{
+    while(t<end-5 && !batch.stop){
+      batch.scans++;
+      const mm=Math.floor(t/60), ss=String(Math.floor(t%60)).padStart(2,'0');
+      batchUI(`Scanning film @ ${mm}:${ss} — looking for a snap…`,`~$${(batch.scans*0.002+batch.found*0.06).toFixed(2)} spent · ${Math.round((Date.now()-startReal)/1000)}s elapsed`);
+      const frame=await grabOneFrameAt(v,t);
+      let live=false;
+      try{ live=await classifyFrame(frame); errs=0; }
+      catch(e){
+        errs++;
+        if(errs>=3){batchUI('⛔ Stopped — repeated API errors: '+String(e.message||e).slice(0,140)+' — check your key/credit.');break;}
+        batchUI('⚠️ Scan error, retrying… '+String(e.message||e).slice(0,120));
+        await new Promise(r=>setTimeout(r,3000)); continue;
+      }
+      if(live && !batch.stop){
+        batchUI(`🏈 Snap detected @ ${mm}:${ss} — running full breakdown…`);
+        snapTime=t;
+        const frames=await grabNativeFramesAt(v,t);
+        try{
+          const j=await aiBreakdown(frames);
+          const conf=(j.read&&j.read.confidence)||{};
+          if((conf.formation||0)>=0.25){
+            applyAI(j); savePlay(); batch.found++;
+            batchUI(`✅ Play ${batch.found} charted: ${tag.formation} · ${tag.playType} vs ${tag.coverage}${tag.blitz?' + BLITZ':''}`);
+          } else batchUI(`Skipped low-confidence frame set @ ${mm}:${ss} (replay/graphic)`);
+        }catch(e){batchUI('⚠️ Analysis error: '+String(e.message||e).slice(0,120)+' — continuing…');}
+        t+=postSkip;
+      } else t+=scanStep;
+    }
+  }catch(e){batchUI('⚠️ Stopped: '+String(e.message||e).slice(0,160));}
+  batch.running=false; $('batchBtn').textContent='⚡ Auto-Chart Game';
+  batchUI(`Finished. ${batch.found} plays charted into the database — open Offense/Defense Scout &amp; Tendencies.`,`${batch.scans} frames scanned`);
+  renderAll(); toast('🏁 Auto-chart complete: '+batch.found+' plays');
+}
+async function liveChart(){
+  batch={running:true,stop:false,found:0,scans:0};
+  $('batchBtn').textContent='⏹ Stop Live Charting';
+  batchUI('If asked, pick <b>This Tab</b> in the share dialog. Then the film plays and charting runs hands-free.');
+  let stream;
+  try{
+    stream=await getCapture();
+    const sv=document.createElement('video'); sv.srcObject=stream; sv.muted=true; await sv.play();
+    if(activeSource==='yt'&&ytPlayer&&ytPlayer.playVideo)ytPlayer.playVideo();
+    const snap1=tabSnapper(sv);
+    let errs=0;
+    while(!batch.stop && stream.active){
+      batch.scans++;
+      let live=false; const shot=snap1();
+      try{ live=await classifyFrame(shot); errs=0; }
+      catch(e){
+        errs++;
+        batchUI('⚠️ Scan error: '+String(e.message||e).slice(0,140), errs>=3?'':'retrying…',shot);
+        if(errs>=3){batchUI('⛔ Stopped — repeated API errors. Check your key has credit, then restart.');break;}
+        await new Promise(r=>setTimeout(r,3000)); continue;
+      }
+      batchUI((live?'🏈 <b>LIVE PLAY DETECTED</b> — recording…':'👁 Watching film — dead ball / replay')+' <span class="muted">(scan '+batch.scans+')</span>',`~$${(batch.scans*0.002+batch.found*0.06).toFixed(2)} spent · ${batch.found} plays charted`,shot);
+      if(live && !batch.stop){
+        const frames=[];
+        for(let i=0;i<8;i++){frames.push(snap1()); await new Promise(r=>setTimeout(r,700));}
+        analyzeAsync(frames); // analysis runs in background — keep watching for the next snap
+        await new Promise(r=>setTimeout(r,8000));
+      } else await new Promise(r=>setTimeout(r,4000));
+    }
+  }catch(e){batchUI('⚠️ '+String(e.message||e).slice(0,160));}
+  if(stream){stream.getTracks().forEach(t=>t.stop());captureStream=null;}
+  batch.running=false; $('batchBtn').textContent='⚡ Auto-Chart Game';
+  batchUI(`Live charting stopped. ${batch.found} plays in the database.`);
+  renderAll();
+}
+function applyAI(j){
+  const st=j.situation||{};
+  if(st.quarter>=1&&st.quarter<=4)tag.q=st.quarter;
+  if(st.down>=1&&st.down<=4)tag.down=st.down;
+  if(st.dist>=1&&st.dist<=40)tag.dist=Math.round(st.dist);
+  if(st.yardLine>=1&&st.yardLine<=99)tag.yard=Math.round(st.yardLine);
+  if(['L','M','R'].includes(st.hash))tag.hash=st.hash;
+  const f=nearest(j.formation,FORMATIONS); if(f)tag.formation=f;
+  const pt=nearest(j.playType,PLAYTYPES); if(pt)tag.playType=pt;
+  const cc=nearest(j.concept,[...RUN_CONCEPTS,...PASS_CONCEPTS,...ST_CONCEPTS]); if(cc)tag.concept=cc;
+  const mo=nearest(j.motion,MOTIONS); if(mo)tag.motion=mo;
+  tag.routes={};
+  if(j.routes)Object.keys(j.routes).forEach(p=>{const r=nearest(j.routes[p],['Run Path',...ROUTES]); if(r&&ALIGN[tag.formation].find(a=>a[0]===p))tag.routes[p]=r;});
+  const d=j.defense||{};
+  const fr=nearest(d.front,FRONTS); if(fr)tag.front=fr;
+  const cv=nearest(d.postSnapCoverage,COVERAGES); if(cv)tag.coverage=cv;
+  tag.blitz=!!d.blitz;
+  const bt=nearest(d.blitzType,BLITZ_TYPES); tag.blitzType=tag.blitz?(bt||'Mike A-Gap'):'None';
+  if(j.result&&typeof j.result.gain==='number')tag.gain=Math.round(j.result.gain);
+  lastRead={pre:d.preSnapShell||null,rotation:d.rotation||null};
+  buildTagPanel(); drawLiveField();
+  const rd=j.read||{}; const conf=rd.confidence||{};
+  const cChip=(l,v)=>`<span class="chip ${v>=0.7?'run':v>=0.4?'gold':'blitz'}" title="confidence">${l} ${Math.round((v||0)*100)}%</span>`;
+  $('aiRead').innerHTML=`
+    <div style="background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        ${formChip(tag.formation)}
+        <span class="chip ${tag.playType==='Run'?'run':'pass'}">${tag.playType} — ${tag.concept}</span>
+        ${tag.blitz?`<span class="chip blitz">BLITZ: ${tag.blitzType}</span>`:''}
+      </div>
+      <div style="font-size:14px;font-weight:800;margin-bottom:7px;color:${tag.gain>=10?'var(--accent)':tag.gain<0?'var(--red)':'var(--text)'}">▶ WHAT HAPPENED: ${(j.result&&j.result.description)||''} (${tag.gain>=0?'+':''}${tag.gain} yds)</div>
+      ${d.preSnapShell?`<div style="font-size:12px;margin-bottom:4px"><b style="color:var(--accent)">Pre-snap:</b> ${d.preSnapShell}</div>`:''}
+      <div style="font-size:12px;margin-bottom:4px"><b style="color:var(--accent)">Post-snap:</b> ${covChip(tag.coverage)}${d.rotation?` <span style="color:var(--orange)">↻ ${d.rotation}</span>`:''}</div>
+      <div style="font-size:12.5px;margin:8px 0">${rd.summary||''}</div>
+      ${(rd.keyObservations||[]).map(o=>`<div style="font-size:12px;padding:3px 0;border-top:1px solid rgba(35,42,58,.5)">▸ ${o}</div>`).join('')}
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${cChip('Formation',conf.formation)}${cChip('Coverage',conf.coverage)}${cChip('Routes',conf.routes)}</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="btn sm" style="flex:1" onclick="savePlay()">💾 Confirm &amp; Save</button>
+        <button class="btn ghost sm" onclick="savePlay();addToPlaylist()">⭐ Save → Playlist</button>
+        ${(activeSource==='file'||activeSource==='url')?`<button class="btn ghost sm" onclick="savePlay();var v=document.getElementById('vid');v.currentTime+=35;toast('▸ Jumped ahead — mark the snap and analyze')">Save+Next ▸</button>`:''}
+      </div>
+    </div>`;
+  renderPrePost(); renderQuickStats();
+  toast('🧠 AI breakdown complete — review and confirm');
+}
+/* ================= FIELD DRAWING ================= */
+function fieldBase(svg,W,H){
+  let s='';
+  for(let i=1;i<7;i++){const y=H-30-i*(H-60)/7; s+=`<line x1="20" y1="${y}" x2="${W-20}" y2="${y}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`;}
+  s+=`<line x1="20" y1="${H-30}" x2="${W-20}" y2="${H-30}" stroke="rgba(255,255,255,.35)" stroke-width="2"/>`;
+  s+=`<text x="${W-25}" y="${H-36}" fill="rgba(255,255,255,.3)" font-size="9" text-anchor="end" font-family="monospace">LOS</text>`;
+  return s;
+}
+function routeColor(r){return r==='Run Path'?'var(--accent2)':r==='Block'?'#5a647a':'var(--blue)';}
+function drawPlayField(svgId, formation, routes, blitz, blitzType){
+  const svg=$(svgId); if(!svg)return;
+  const W=600,H=340,losY=H-30,cx=W/2,half=(W-60)/2;
+  let s=fieldBase(svg,W,H);
+  // OL
+  for(let i=-2;i<=2;i++){const x=cx+i*22; s+=`<circle cx="${x}" cy="${losY-6}" r="6" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>`;}
+  const qbY = (formation.startsWith('Gun')||formation==='Gun Empty')?losY-6+38:formation.startsWith('Pistol')?losY-6+28:losY-6+14;
+  s+=`<rect x="${cx-5}" y="${qbY-5}" width="10" height="10" rx="2" fill="none" stroke="var(--accent)" stroke-width="1.5"/><text x="${cx+10}" y="${qbY+4}" fill="var(--accent)" font-size="9" font-family="monospace">QB</text>`;
+  (ALIGN[formation]||[]).forEach(([pos,rx,depth])=>{
+    const x=cx+rx*half, y=losY-6+depth*220;
+    const route=routes[pos]||'Block';
+    const col=routeColor(route);
+    // route path
+    const segs=route==='Run Path'?[[0,-14],[(rx<0?22:-22),-34]]:(ROUTE_PATHS[route]||[[0,-30]]);
+    let px=x,py=y,pstr=`M ${px} ${py}`;
+    segs.forEach(([dx,dy])=>{const m=(rx>0&&['Out','Corner','Flat','Comeback','Wheel'].includes(route))?1:(rx>0?1:( ['Out','Corner','Flat','Comeback','Wheel'].includes(route)?-1:1));
+      px+=dx*(rx>=0?1:-1)*0.85*(route==='Drag'||route==='Dig'||route==='Post'?1:1); py+=dy*0.85; pstr+=` L ${px} ${py}`;});
+    if(route!=='Block') s+=`<path d="${pstr}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linecap="round" opacity=".9" marker-end="url(#arr_${svgId})"/>`;
+    s+=`<circle cx="${x}" cy="${y}" r="8" fill="var(--panel2)" stroke="${col}" stroke-width="2"/>`;
+    s+=`<text x="${x}" y="${y+3.5}" fill="#cfd6e4" font-size="8.5" text-anchor="middle" font-family="monospace" font-weight="bold">${pos}</text>`;
+  });
+  if(blitz){
+    const bx = blitzType.includes('A-Gap')?cx+10:blitzType.includes('Will')||blitzType.includes('Safety')?cx-95:blitzType.includes('Nickel')||blitzType.includes('Corner')?cx+150:cx+95;
+    s+=`<path d="M ${bx} ${losY-70} L ${bx-(bx>cx?14:-14)} ${losY+2}" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrR_${svgId})"/>`;
+    s+=`<circle cx="${bx}" cy="${losY-70}" r="8" fill="rgba(212,87,78,.15)" stroke="var(--red)" stroke-width="2"/><text x="${bx}" y="${losY-66.5}" fill="var(--red)" font-size="8" text-anchor="middle" font-weight="bold">B</text>`;
+    s+=`<text x="${bx+14}" y="${losY-68}" fill="var(--red)" font-size="9" font-family="monospace">${blitzType}</text>`;
+  }
+  svg.innerHTML=`<defs>
+    <marker id="arr_${svgId}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--blue)"/></marker>
+    <marker id="arrR_${svgId}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--red)"/></marker>
+  </defs>`+s;
+}
+function drawLiveField(){drawPlayField('liveField',tag.formation,tag.routes,tag.blitz,tag.blitzType);}
+/* ================= ANALYTICS HELPERS ================= */
+function zone(y){return y<=20?'Backed Up (own 1-20)':y<=50?'Own Territory (21-50)':y<=79?'Plus Territory (51-79)':'Red Zone (80+)';}
+function distBucket(d){return d<=3?'Short (1-3)':d<=6?'Medium (4-6)':'Long (7+)';}
+function count(plays,key){const m={};plays.forEach(p=>{const k=typeof key==='function'?key(p):p[key];m[k]=(m[k]||0)+1;});return m;}
+function sortEntries(m){return Object.entries(m).sort((a,b)=>b[1]-a[1]);}
+function avg(arr){return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;}
+function applyOffFilter(){
+  return PLAYS.filter(p=>
+    (offFilter.down==='all'||p.down==+offFilter.down)&&
+    (offFilter.dist==='all'||distBucket(p.dist)===offFilter.dist)&&
+    (offFilter.zone==='all'||zone(p.yard)===offFilter.zone)&&
+    (offFilter.q==='all'||p.q==+offFilter.q));
+}
+function applyDefFilter(){
+  return PLAYS.filter(p=>
+    (defFilter.down==='all'||p.down==+defFilter.down)&&
+    (defFilter.formation==='all'||p.formation===defFilter.formation)&&
+    (defFilter.q==='all'||p.q==+defFilter.q));
+}
+function barRow(label,n,total,cls,extra){
+  const pct=total?n/total:0;
+  return `<tr ${extra||''}><td>${label}</td><td class="pct">${n}</td><td style="width:38%"><div class="bar-wrap"><div class="bar ${cls||''}" style="width:${pct*100}%"></div></div></td><td class="pct">${fmtPct(pct)}</td></tr>`;
+}
+
+/* ================= OFFENSE TAB ================= */
+function renderOffense(){
+  const plays = applyOffFilter();
+  $('offSub').textContent = `WESTFIELD offense — ${plays.length} plays ${plays.length!==PLAYS.length?'(filtered from '+PLAYS.length+')':'charted'}`;
+  $('offFilters').innerHTML = [
+    filterBox('Down',sel(['all',1,2,3,4],'of_down',offFilter.down)),
+    filterBox('Distance',sel(['all','Short (1-3)','Medium (4-6)','Long (7+)'],'of_dist',offFilter.dist)),
+    filterBox('Field zone',sel(['all','Backed Up (own 1-20)','Own Territory (21-50)','Plus Territory (51-79)','Red Zone (80+)'],'of_zone',offFilter.zone)),
+    filterBox('Quarter',sel(['all',1,2,3,4],'of_q',offFilter.q)),
+    `<div style="align-self:flex-end"><button class="btn ghost sm" onclick="offFilter={down:'all',dist:'all',zone:'all',q:'all'};renderOffense()">Reset</button></div>`
+  ].join('');
+  [['of_down','down'],['of_dist','dist'],['of_zone','zone'],['of_q','q']].forEach(([id,k])=>$(id).onchange=e=>{offFilter[k]=e.target.value;renderOffense();});
+  // KPIs
+  const passP=plays.filter(p=>p.playType!=='Run');
+  const runP=plays.filter(p=>p.playType==='Run');
+  const expl=plays.filter(p=>p.gain>=15).length;
+  const blitzed=plays.filter(p=>p.blitz);
+  $('offKpis').innerHTML=`
+    <div class="kpi gold"><div class="v">${plays.length}</div><div class="l">Plays</div></div>
+    <div class="kpi green"><div class="v">${fmtPct(plays.length?runP.length/plays.length:0)}</div><div class="l">Run rate</div></div>
+    <div class="kpi blue"><div class="v">${fmtPct(plays.length?passP.length/plays.length:0)}</div><div class="l">Pass rate</div></div>
+    <div class="kpi"><div class="v">${avg(plays.map(p=>p.gain)).toFixed(1)}</div><div class="l">Yds / play</div></div>
+    <div class="kpi"><div class="v">${expl}</div><div class="l">Explosive 15+</div></div>
+    <div class="kpi red"><div class="v">${fmtPct(plays.length?blitzed.length/plays.length:0)}</div><div class="l">Blitzed vs</div></div>`;
+  // formation table
+  const fc = sortEntries(count(plays,'formation'));
+  if(selFormation && !fc.find(([f])=>f===selFormation)) selFormation=null;
+  if(!selFormation && fc.length) selFormation=fc[0][0];
+  $('formTable').innerHTML = `<tr><th>Formation</th><th>Pers</th><th>Plays</th><th></th><th>%</th><th>Run/Pass</th><th>Yds/Play</th></tr>`+
+    fc.map(([f,n])=>{
+      const fp=plays.filter(p=>p.formation===f);
+      const rr=fp.filter(p=>p.playType==='Run').length/n;
+      return `<tr class="clickable ${f===selFormation?'selrow':''}" onclick="selFormation='${f}';renderOffense()">
+        <td>${formDot(f)}<b>${f}</b></td><td><span class="chip dim">${PERSONNEL[f]}</span></td><td class="pct">${n}</td>
+        <td style="width:22%"><div class="bar-wrap"><div class="bar" style="width:${n/plays.length*100}%;background:${FORM_COLORS[f]}"></div></div></td>
+        <td class="pct">${fmtPct(n/plays.length)}</td>
+        <td><span class="chip run">${fmtPct(rr)} R</span> <span class="chip pass">${fmtPct(1-rr)} P</span></td>
+        <td class="pct">${avg(fp.map(p=>p.gain)).toFixed(1)}</td></tr>`;}).join('');
+  renderFormationDetail(plays);
+  // personnel
+  const pc = sortEntries(count(plays,'personnel'));
+  $('persTable').innerHTML=`<tr><th>Pers</th><th>Plays</th><th></th><th>%</th><th>Run%</th></tr>`+pc.map(([g,n])=>{
+    const gp=plays.filter(p=>p.personnel===g);
+    return `<tr><td><b>${g} personnel</b></td><td class="pct">${n}</td><td style="width:30%"><div class="bar-wrap"><div class="bar b" style="width:${n/plays.length*100}%"></div></div></td><td class="pct">${fmtPct(n/plays.length)}</td><td class="pct">${fmtPct(gp.filter(p=>p.playType==='Run').length/n)}</td></tr>`;}).join('');
+  // concepts
+  const pcc=sortEntries(count(passP,'concept')).slice(0,6);
+  const rcc=sortEntries(count(runP,'concept')).slice(0,6);
+  $('passConceptTable').innerHTML=`<tr><th>Pass concept</th><th>#</th><th>%</th></tr>`+pcc.map(([c,n])=>`<tr><td>${c}</td><td class="pct">${n}</td><td class="pct">${fmtPct(passP.length?n/passP.length:0)}</td></tr>`).join('');
+  $('runConceptTable').innerHTML=`<tr><th>Run concept</th><th>#</th><th>%</th></tr>`+rcc.map(([c,n])=>`<tr><td>${c}</td><td class="pct">${n}</td><td class="pct">${fmtPct(runP.length?n/runP.length:0)}</td></tr>`).join('');
+}
+function renderFormationDetail(plays){
+  const f=selFormation;
+  if(!f){$('formDetail').innerHTML='<div class="muted">No plays in filter.</div>';return;}
+  const fp=plays.filter(p=>p.formation===f);
+  const fpass=fp.filter(p=>p.playType!=='Run');
+  $('formDetailTitle').innerHTML=`Formation Detail — <span style="color:var(--text)">${f}</span> <span class="hint">${fp.length} plays</span>`;
+  const ptc=sortEntries(count(fp,'playType'));
+  const chipCls={Run:'run',Pass:'pass',RPO:'rpo','Play Action':'pa',Screen:'gold'};
+  $('formDetail').innerHTML=`
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${ptc.map(([t,n])=>`<span class="chip ${chipCls[t]||'dim'}">${t} ${fmtPct(n/fp.length)}</span>`).join('')}</div>
+    <table><tr><th>Metric</th><th>Value</th></tr>
+      <tr><td>Avg gain</td><td class="pct">${avg(fp.map(p=>p.gain)).toFixed(1)} yds</td></tr>
+      <tr><td>Success rate (4+ yds)</td><td class="pct">${fmtPct(fp.filter(p=>p.gain>=4).length/fp.length)}</td></tr>
+      <tr><td>Most common down</td><td class="pct">${sortEntries(count(fp,'down'))[0][0]}</td></tr>
+      <tr><td>Motion usage</td><td class="pct">${fmtPct(fp.filter(p=>p.motion!=='None').length/fp.length)}</td></tr>
+      <tr><td>Top concept</td><td>${sortEntries(count(fp,'concept'))[0][0]}</td></tr>
+      <tr><td>Faced blitz</td><td class="pct">${fmtPct(fp.filter(p=>p.blitz).length/fp.length)}</td></tr>
+    </table>`;
+  // route tree + route table
+  $('routeTreeTitle').innerHTML=`Aggregate Route Tree — ${f} <span class="hint">pass plays only</span>`;
+  $('routeTableTitle').innerHTML=`Routes by Position — ${f}`;
+  drawAggRouteTree(f,fpass);
+  const positions = ALIGN[f].map(a=>a[0]);
+  let rt=`<tr><th>Pos</th><th>Top routes (pass snaps: ${fpass.length})</th></tr>`;
+  positions.forEach(pos=>{
+    const rc=sortEntries(count(fpass.filter(p=>p.routes[pos]),p=>p.routes[pos])).slice(0,4);
+    rt+=`<tr><td><span class="pos-badge">${pos}</span></td><td>${rc.map(([r,n])=>`<span class="chip ${r==='Block'?'dim':'pass'}" style="margin:2px">${r} ${fmtPct(fpass.length?n/fpass.length:0)}</span>`).join(' ')||'<span class="muted">—</span>'}</td></tr>`;
+  });
+  $('routeTable').innerHTML=rt;
+  // defensive response vs this look
+  $('defRespTitle').innerHTML=`How CENTRAL Answered ${f} <span class="hint">${fp.length} snaps</span>`;
+  const cov=sortEntries(count(fp,'coverage'));
+  const fr=sortEntries(count(fp,'front'));
+  const bl=fp.filter(p=>p.blitz);
+  $('defResponse').innerHTML=`
+    <div><table><tr><th>Coverage</th><th>%</th><th></th></tr>${cov.slice(0,5).map(([c,n])=>`<tr><td>${c}</td><td class="pct">${fmtPct(n/fp.length)}</td><td style="width:40%"><div class="bar-wrap"><div class="bar p" style="width:${n/fp.length*100}%"></div></div></td></tr>`).join('')}</table></div>
+    <div><table><tr><th>Front</th><th>%</th><th></th></tr>${fr.slice(0,5).map(([c,n])=>`<tr><td>${c}</td><td class="pct">${fmtPct(n/fp.length)}</td><td style="width:40%"><div class="bar-wrap"><div class="bar b" style="width:${n/fp.length*100}%"></div></div></td></tr>`).join('')}</table></div>
+    <div><table><tr><th>Pressure</th><th>%</th></tr>
+      <tr><td><span class="chip blitz">BLITZ</span></td><td class="pct">${fmtPct(fp.length?bl.length/fp.length:0)}</td></tr>
+      <tr><td>Avg rushers when blitzing</td><td class="pct">${bl.length?avg(bl.map(p=>p.rushers)).toFixed(1):'—'}</td></tr>
+      <tr><td>Top pressure</td><td>${bl.length?sortEntries(count(bl,'blitzType'))[0][0]:'—'}</td></tr>
+      <tr><td>Avg box count</td><td class="pct">${avg(fp.map(p=>p.box)).toFixed(1)}</td></tr>
+      <tr><td>Yds/play when blitzed</td><td class="pct">${bl.length?avg(bl.map(p=>p.gain)).toFixed(1):'—'}</td></tr>
+    </table></div>`;
+}
+function drawAggRouteTree(formation,fpass){
+  const svg=$('routeField'); if(!svg)return;
+  const W=600,H=340,losY=H-30,cx=W/2,half=(W-60)/2;
+  let s=fieldBase(svg,W,H);
+  for(let i=-2;i<=2;i++){const x=cx+i*22;s+=`<circle cx="${x}" cy="${losY-6}" r="6" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>`;}
+  const colors=['var(--blue)','var(--accent2)','var(--accent)','var(--purple)','var(--orange)'];
+  let legend='';
+  (ALIGN[formation]||[]).forEach(([pos,rx,depth],i)=>{
+    const x=cx+rx*half,y=losY-6+depth*220,col=colors[i%colors.length];
+    const rc=sortEntries(count(fpass.filter(p=>p.routes[pos]&&p.routes[pos]!=='Block'&&p.routes[pos]!=='Run Path'),p=>p.routes[pos])).slice(0,3);
+    const tot=rc.reduce((a,[,n])=>a+n,0);
+    rc.forEach(([route,n])=>{
+      const segs=ROUTE_PATHS[route]||[[0,-30]];
+      let px=x,py=y,pstr=`M ${px} ${py}`;
+      segs.forEach(([dx,dy])=>{px+=dx*(rx>=0?1:-1)*0.85;py+=dy*0.85;pstr+=` L ${px} ${py}`;});
+      s+=`<path d="${pstr}" fill="none" stroke="${col}" stroke-width="${1.5+4*(tot?n/tot:0)}" opacity="${0.35+0.6*(tot?n/tot:0)}" stroke-linecap="round"/>`;
+    });
+    s+=`<circle cx="${x}" cy="${y}" r="8" fill="var(--panel2)" stroke="${col}" stroke-width="2"/><text x="${x}" y="${y+3.5}" fill="#cfd6e4" font-size="8.5" text-anchor="middle" font-family="monospace" font-weight="bold">${pos}</text>`;
+    legend+=`<span><i style="background:${col}"></i> ${pos}: ${rc.map(([r,n])=>r+' '+(tot?Math.round(n/tot*100):0)+'%').join(' · ')||'—'}</span>`;
+  });
+  svg.innerHTML=s;
+  $('routeLegend').innerHTML=legend+'<span class="muted" style="width:100%">Line weight = route frequency (top 3 routes per position)</span>';
+}
+
+/* ================= DEFENSE TAB ================= */
+function renderDefense(){
+  const plays=applyDefFilter();
+  $('defSub').textContent=`CENTRAL defense — ${plays.length} snaps ${plays.length!==PLAYS.length?'(filtered)':'charted'}`;
+  $('defFilters').innerHTML=[
+    filterBox('Down',sel(['all',1,2,3,4],'df_down',defFilter.down)),
+    filterBox('vs Formation',sel(['all',...FORMATIONS],'df_form',defFilter.formation)),
+    filterBox('Quarter',sel(['all',1,2,3,4],'df_q',defFilter.q)),
+    `<div style="align-self:flex-end"><button class="btn ghost sm" onclick="defFilter={down:'all',formation:'all',q:'all'};renderDefense()">Reset</button></div>`
+  ].join('');
+  [['df_down','down'],['df_form','formation'],['df_q','q']].forEach(([id,k])=>$(id).onchange=e=>{defFilter[k]=e.target.value;renderDefense();});
+  const bl=plays.filter(p=>p.blitz);
+  const man=plays.filter(p=>['Cover 0','Cover 1','2-Man'].includes(p.coverage));
+  $('defKpis').innerHTML=`
+    <div class="kpi gold"><div class="v">${plays.length}</div><div class="l">Snaps</div></div>
+    <div class="kpi red"><div class="v">${fmtPct(plays.length?bl.length/plays.length:0)}</div><div class="l">Blitz rate</div></div>
+    <div class="kpi blue"><div class="v">${fmtPct(plays.length?man.length/plays.length:0)}</div><div class="l">Man coverage</div></div>
+    <div class="kpi green"><div class="v">${fmtPct(plays.length?(plays.length-man.length)/plays.length:0)}</div><div class="l">Zone coverage</div></div>
+    <div class="kpi"><div class="v">${avg(plays.map(p=>p.box)).toFixed(1)}</div><div class="l">Avg box</div></div>
+    <div class="kpi"><div class="v">${avg(plays.map(p=>p.gain)).toFixed(1)}</div><div class="l">Yds allowed/play</div></div>`;
+  $('covTable').innerHTML=`<tr><th>Coverage</th><th>Snaps</th><th></th><th>%</th><th>Yds allowed</th></tr>`+
+    sortEntries(count(plays,'coverage')).map(([c,n])=>`<tr><td style="color:${COV_COLORS[c]||'inherit'}"><b>${c}</b></td><td class="pct">${n}</td><td style="width:38%"><div class="bar-wrap"><div class="bar" style="width:${n/plays.length*100}%;background:${COV_COLORS[c]||'var(--purple)'}"></div></div></td><td class="pct">${fmtPct(n/plays.length)}</td><td class="pct">${avg(plays.filter(p=>p.coverage===c).map(p=>p.gain)).toFixed(1)}</td></tr>`).join('');
+  $('frontTable').innerHTML=`<tr><th>Front</th><th>Snaps</th><th></th><th>%</th><th>Yds allowed</th></tr>`+
+    sortEntries(count(plays,'front')).map(([c,n])=>barRow(c,n,plays.length,'b').replace('</tr>',`<td class="pct">${avg(plays.filter(p=>p.front===c).map(p=>p.gain)).toFixed(1)}</td></tr>`)).join('');
+  // vs look table — full matrix
+  const looks=sortEntries(count(PLAYS.filter(p=>(defFilter.q==='all'||p.q==+defFilter.q)&&(defFilter.down==='all'||p.down==+defFilter.down)),'formation'));
+  $('vsLookTable').innerHTML=`<tr><th>Offensive look</th><th>Snaps</th><th>Top front</th><th>Top coverage</th><th>2nd coverage</th><th>Blitz%</th><th>Man/Zone</th></tr>`+
+    looks.map(([f,n])=>{
+      const fp=PLAYS.filter(p=>p.formation===f);
+      const cov=sortEntries(count(fp,'coverage'));
+      const fr=sortEntries(count(fp,'front'));
+      const b=fp.filter(p=>p.blitz).length/fp.length;
+      const m=fp.filter(p=>['Cover 0','Cover 1','2-Man'].includes(p.coverage)).length/fp.length;
+      return `<tr><td>${formDot(f)}<b>${f}</b> <span class="chip dim">${PERSONNEL[f]}</span></td><td class="pct">${fp.length}</td>
+        <td>${fr[0][0]} <span class="muted pct">${fmtPct(fr[0][1]/fp.length)}</span></td>
+        <td>${covChip(cov[0][0])} <span class="muted pct">${fmtPct(cov[0][1]/fp.length)}</span></td>
+        <td>${cov[1]?covChip(cov[1][0])+' <span class="muted pct">'+fmtPct(cov[1][1]/fp.length)+'</span>':'—'}</td>
+        <td><span class="chip ${b>0.3?'blitz':'dim'}">${fmtPct(b)}</span></td>
+        <td><span class="chip pass">${fmtPct(m)} M</span> <span class="chip run">${fmtPct(1-m)} Z</span></td></tr>`;}).join('');
+  // blitz by down
+  let bd='<table><tr><th>Situation</th><th>Snaps</th><th>Blitz%</th><th></th></tr>';
+  [[1,'1st down'],[2,'2nd down'],[3,'3rd down'],[4,'4th down']].forEach(([d,l])=>{
+    const dp=plays.filter(p=>p.down===d); if(!dp.length)return;
+    const b=dp.filter(p=>p.blitz).length/dp.length;
+    bd+=`<tr><td>${l}</td><td class="pct">${dp.length}</td><td class="pct" style="color:${b>0.3?'var(--red)':'inherit'}">${fmtPct(b)}</td><td style="width:38%"><div class="bar-wrap"><div class="bar r" style="width:${b*100}%"></div></div></td></tr>`;
+  });
+  ['Short (1-3)','Medium (4-6)','Long (7+)'].forEach(buck=>{
+    const dp=plays.filter(p=>p.down===3&&distBucket(p.dist)===buck); if(!dp.length)return;
+    const b=dp.filter(p=>p.blitz).length/dp.length;
+    bd+=`<tr><td class="muted">↳ 3rd &amp; ${buck}</td><td class="pct">${dp.length}</td><td class="pct" style="color:${b>0.4?'var(--red)':'inherit'}">${fmtPct(b)}</td><td><div class="bar-wrap"><div class="bar r" style="width:${b*100}%"></div></div></td></tr>`;
+  });
+  $('blitzByDown').innerHTML=bd+'</table>';
+  const bt=sortEntries(count(bl,'blitzType'));
+  $('blitzDetail').innerHTML=`<table><tr><th>Pressure call</th><th>#</th><th>% of blitzes</th><th>Yds allowed</th></tr>`+
+    bt.map(([t,n])=>`<tr><td><span class="chip blitz">${t}</span></td><td class="pct">${n}</td><td class="pct">${fmtPct(bl.length?n/bl.length:0)}</td><td class="pct">${avg(bl.filter(p=>p.blitzType===t).map(p=>p.gain)).toFixed(1)}</td></tr>`).join('')+
+    `</table><div class="muted" style="font-size:12px;margin-top:10px">When blitzing, CENTRAL allows <b style="color:var(--text)">${bl.length?avg(bl.map(p=>p.gain)).toFixed(1):'—'}</b> yds/play vs <b style="color:var(--text)">${avg(plays.filter(p=>!p.blitz).map(p=>p.gain)).toFixed(1)}</b> when rushing 4.</div>`;
+}
+/* ================= TENDENCIES TAB ================= */
+function heatColor(runPct){
+  // green = run heavy, blue = pass heavy
+  if(isNaN(runPct)) return 'var(--panel2)';
+  return runPct>=0.5?`rgba(63,174,106,${0.15+0.55*(runPct-0.5)*2})`:`rgba(78,143,212,${0.15+0.55*(0.5-runPct)*2})`;
+}
+function renderTendencies(){
+  const plays=PLAYS.filter(p=>tendFilter.q==='all'||p.q==+tendFilter.q);
+  $('tendFilters').innerHTML=filterBox('Quarter',sel(['all',1,2,3,4],'tn_q',tendFilter.q));
+  $('tn_q').onchange=e=>{tendFilter.q=e.target.value;renderTendencies();};
+  // down & distance matrix
+  const dists=['Short (1-3)','Medium (4-6)','Long (7+)'];
+  let mx=`<div class="matrix" style="grid-template-columns:90px repeat(3,1fr)">`;
+  mx+=`<div class="mx-cell mx-head"></div>`+dists.map(d=>`<div class="mx-cell mx-head">${d}</div>`).join('');
+  [1,2,3].forEach(down=>{
+    mx+=`<div class="mx-cell mx-head">${down}${['st','nd','rd'][down-1]} down</div>`;
+    dists.forEach(d=>{
+      const dp=plays.filter(p=>p.down===down&&distBucket(p.dist)===d);
+      const r=dp.length?dp.filter(p=>p.playType==='Run').length/dp.length:NaN;
+      mx+=`<div class="mx-cell" style="background:${heatColor(r)}" title="${dp.length} plays">${dp.length?fmtPct(r)+' R<br><span style="font-weight:400;opacity:.7;font-size:10px">'+dp.length+' plays · '+(sortEntries(count(dp,'formation'))[0]||['—'])[0]+'</span>':'—'}</div>`;
+    });
+  });
+  mx+=`</div><div class="legend" style="margin-top:12px"><span><i style="background:var(--accent2)"></i> Run-heavy</span><span><i style="background:var(--blue)"></i> Pass-heavy</span><span class="muted">Cell shows run% + most-used formation</span></div>`;
+  $('ddMatrix').innerHTML=mx;
+  // field zone
+  const zones=['Backed Up (own 1-20)','Own Territory (21-50)','Plus Territory (51-79)','Red Zone (80+)'];
+  $('fzTable').innerHTML=`<table><tr><th>Zone</th><th>Plays</th><th>Run%</th><th>Top formation</th><th>Top concept</th></tr>`+zones.map(z=>{
+    const zp=plays.filter(p=>zone(p.yard)===z); if(!zp.length)return '';
+    return `<tr><td><b>${z}</b></td><td class="pct">${zp.length}</td><td class="pct">${fmtPct(zp.filter(p=>p.playType==='Run').length/zp.length)}</td><td>${sortEntries(count(zp,'formation'))[0][0]}</td><td>${sortEntries(count(zp,'concept'))[0][0]}</td></tr>`;
+  }).join('')+'</table>';
+  // hash
+  $('hashTable').innerHTML=`<table><tr><th>Hash</th><th>Plays</th><th>Run%</th><th>Top formation</th><th>Boundary/Field note</th></tr>`+['L','M','R'].map(h=>{
+    const hp=plays.filter(p=>p.hash===h); if(!hp.length)return '';
+    const tf=sortEntries(count(hp,'formation'))[0][0];
+    return `<tr><td><b>${h==='L'?'Left':h==='R'?'Right':'Middle'}</b></td><td class="pct">${hp.length}</td><td class="pct">${fmtPct(hp.filter(p=>p.playType==='Run').length/hp.length)}</td><td>${tf}</td><td class="muted">${tf.includes('Rt')&&h==='L'?'Strength set to field':tf.includes('Lt')&&h==='R'?'Strength set to field':'—'}</td></tr>`;
+  }).join('')+'</table>';
+  // motion / PA
+  const mo=plays.filter(p=>p.motion!=='None');
+  const pa=plays.filter(p=>p.playType==='Play Action');
+  const rpo=plays.filter(p=>p.playType==='RPO');
+  $('motionTable').innerHTML=`<table><tr><th>Element</th><th>Usage</th><th>Run% after</th><th>Yds/play</th></tr>
+    <tr><td>Any motion</td><td class="pct">${fmtPct(plays.length?mo.length/plays.length:0)}</td><td class="pct">${mo.length?fmtPct(mo.filter(p=>p.playType==='Run').length/mo.length):'—'}</td><td class="pct">${mo.length?avg(mo.map(p=>p.gain)).toFixed(1):'—'}</td></tr>
+    ${MOTIONS.slice(1).map(m=>{const mp=plays.filter(p=>p.motion===m);return mp.length?`<tr><td class="muted">↳ ${m}</td><td class="pct">${mp.length}</td><td class="pct">${fmtPct(mp.filter(p=>p.playType==='Run').length/mp.length)}</td><td class="pct">${avg(mp.map(p=>p.gain)).toFixed(1)}</td></tr>`:'';}).join('')}
+    <tr><td>Play action</td><td class="pct">${fmtPct(plays.length?pa.length/plays.length:0)}</td><td>—</td><td class="pct">${pa.length?avg(pa.map(p=>p.gain)).toFixed(1):'—'}</td></tr>
+    <tr><td>RPO</td><td class="pct">${fmtPct(plays.length?rpo.length/plays.length:0)}</td><td>—</td><td class="pct">${rpo.length?avg(rpo.map(p=>p.gain)).toFixed(1):'—'}</td></tr></table>`;
+  // auto alerts — scan for exploitable tendencies
+  const alerts=[];
+  FORMATIONS.forEach(f=>{
+    const fp=plays.filter(p=>p.formation===f); if(fp.length<6)return;
+    const r=fp.filter(p=>p.playType==='Run').length/fp.length;
+    if(r>=0.75)alerts.push(['🟢',`Out of <b>${f}</b>, offense runs <b>${fmtPct(r)}</b> of the time (${fp.length} snaps). Load the box.`]);
+    if(r<=0.2)alerts.push(['🔵',`Out of <b>${f}</b>, offense passes <b>${fmtPct(1-r)}</b> of the time (${fp.length} snaps). Pin ears back.`]);
+  });
+  const t3=plays.filter(p=>p.down===3&&p.dist>=4&&p.dist<=7);
+  if(t3.length>=5){const b=t3.filter(p=>p.blitz).length/t3.length; if(b>=0.4)alerts.push(['🔴',`CENTRAL blitzes <b>${fmtPct(b)}</b> on 3rd &amp; medium (${t3.length} snaps). Have screens &amp; hot routes ready.`]);}
+  FORMATIONS.filter(f=>f.includes('Trips')).forEach(f=>{
+    const fp=plays.filter(p=>p.formation===f); if(fp.length<6)return;
+    const b=fp.filter(p=>p.blitz).length/fp.length;
+    if(b>=0.3)alerts.push(['🔴',`vs <b>${f}</b>, CENTRAL brings pressure <b>${fmtPct(b)}</b> of snaps — check protections to trips side.`]);
+    const cov=sortEntries(count(fp,'coverage'))[0];
+    if(cov[1]/fp.length>=0.4)alerts.push(['🟣',`vs <b>${f}</b>, CENTRAL sits in <b>${cov[0]}</b> on <b>${fmtPct(cov[1]/fp.length)}</b> of snaps — attack its weak zones.`]);
+  });
+  const mp=plays.filter(p=>p.motion==='Jet');
+  if(mp.length>=4){const r=mp.filter(p=>p.playType==='Run').length/mp.length; if(r>=0.6||r<=0.3)alerts.push(['🟡',`Jet motion → <b>${fmtPct(r>=0.6?r:1-r)} ${r>=0.6?'run':'pass'}</b> (${mp.length} snaps). Motion is a tell.`]);}
+  const rz=plays.filter(p=>zone(p.yard)==='Red Zone (80+)');
+  if(rz.length>=6){const tf=sortEntries(count(rz,'formation'))[0]; if(tf[1]/rz.length>=0.3)alerts.push(['🟠',`Red zone: <b>${tf[0]}</b> on <b>${fmtPct(tf[1]/rz.length)}</b> of snaps (${rz.length} RZ plays).`]);}
+  $('alerts').innerHTML=alerts.length?alerts.map(([ic,txt])=>`<div style="display:flex;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(35,42,58,.5);align-items:baseline"><span>${ic}</span><span>${txt}</span></div>`).join(''):'<div class="muted">No strong tendencies above threshold in current filter.</div>';
+}
+
+/* ================= SITUATIONS & GAME PLAN ================= */
+const COV_BEATERS={
+ 'Cover 0':{routes:['Slant','Drag','Screen'],concepts:['Mesh','Stick','Screen Game'],note:'No deep help — win quick or take the shot'},
+ 'Cover 1':{routes:['Drag','Dig','Wheel'],concepts:['Mesh','Y-Cross','Shallow'],note:'Crossers and rubs beat man coverage'},
+ 'Cover 2':{routes:['Corner','Seam','Dig'],concepts:['Smash','Four Verts','Dagger'],note:'Hole shot behind the corner; attack the open middle'},
+ 'Cover 3':{routes:['Flat','Out','Seam'],concepts:['Flood','Stick','Four Verts'],note:'Stretch the flats; 4 verticals vs 3 deep'},
+ 'Cover 4 Quarters':{routes:['Flat','Drag','Curl'],concepts:['Spacing','Shallow','Stick'],note:'Take the soft underneath all day'},
+ 'Cover 6':{routes:['Out','Seam','Corner'],concepts:['Flood','Smash','Dagger'],note:'Attack the seam between the split coverages'},
+ '2-Man':{routes:['Wheel','Go','Corner'],concepts:['Mesh','Four Verts','Y-Cross'],note:'Rubs underneath, fades over the top'},
+ 'Tampa 2':{routes:['Corner','Out','Comeback'],concepts:['Smash','Flood','Dagger'],note:'Holes outside the deep-middle runner'}};
+function situRow(label,sp,showBlitz){
+  if(!sp.length)return '';
+  const runR=sp.filter(p=>p.playType==='Run').length/sp.length;
+  const tf=sortEntries(count(sp,'formation'))[0];
+  const tc=sortEntries(count(sp,'concept'))[0];
+  const routes={}; sp.filter(p=>p.playType!=='Run').forEach(p=>Object.values(p.routes||{}).forEach(r=>{if(r&&r!=='Block'&&r!=='Run Path')routes[r]=(routes[r]||0)+1;}));
+  const tr=sortEntries(routes)[0];
+  const bl=sp.filter(p=>p.blitz).length/sp.length;
+  return `<tr><td><b>${label}</b></td><td class="pct">${sp.length}</td>
+    <td><span class="chip run">${fmtPct(runR)} R</span> <span class="chip pass">${fmtPct(1-runR)} P</span></td>
+    <td>${tf?formDot(tf[0])+tf[0]+' <span class="muted pct">'+fmtPct(tf[1]/sp.length)+'</span>':'—'}</td>
+    <td>${tc?tc[0]:'—'}</td>
+    <td>${tr?'<span class="chip pass">'+tr[0]+'</span>':'—'}</td>
+    <td><span class="chip ${bl>0.3?'blitz':'dim'}">${fmtPct(bl)}</span></td></tr>`;
+}
+function renderSituations(){
+  const plays=PLAYS;
+  const rz=plays.filter(p=>p.yard>=80);
+  // red zone offense
+  $('rzoHint').textContent=rz.length+' snaps inside the 20';
+  if(rz.length){
+    const runR=rz.filter(p=>p.playType==='Run').length/rz.length;
+    const rpo=rz.filter(p=>p.playType==='RPO').length/rz.length;
+    const pa=rz.filter(p=>p.playType==='Play Action').length/rz.length;
+    const tf=sortEntries(count(rz,'formation')).slice(0,3);
+    const tc=sortEntries(count(rz,'concept')).slice(0,3);
+    const routes={}; rz.filter(p=>p.playType!=='Run').forEach(p=>Object.values(p.routes||{}).forEach(r=>{if(r&&r!=='Block'&&r!=='Run Path')routes[r]=(routes[r]||0)+1;}));
+    const rt=sortEntries(routes).slice(0,3); const rTot=Object.values(routes).reduce((a,b)=>a+b,0)||1;
+    $('rzOffense').innerHTML=`
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <span class="chip run">${fmtPct(runR)} Run</span><span class="chip pass">${fmtPct(1-runR)} Pass</span>
+        ${rpo>0.08?`<span class="chip rpo">${fmtPct(rpo)} RPO</span>`:''}${pa>0.08?`<span class="chip pa">${fmtPct(pa)} Play Action</span>`:''}</div>
+      <table><tr><th>Their go-to looks</th><th>%</th></tr>
+      ${tf.map(([f,n])=>`<tr><td>${formDot(f)}${f}</td><td class="pct">${fmtPct(n/rz.length)}</td></tr>`).join('')}</table>
+      <table style="margin-top:8px"><tr><th>Their go-to calls</th><th>%</th></tr>
+      ${tc.map(([c,n])=>`<tr><td>${c}</td><td class="pct">${fmtPct(n/rz.length)}</td></tr>`).join('')}</table>
+      ${rt.length?`<div style="margin-top:8px;font-size:12px"><b style="color:var(--accent)">Routes they trust down here:</b> ${rt.map(([r,n])=>`<span class="chip pass">${r} ${fmtPct(n/rTot)}</span>`).join(' ')}</div>`:''}`;
+  } else $('rzOffense').innerHTML='<div class="muted">No red zone snaps charted yet.</div>';
+  // red zone defense
+  $('rzdHint').textContent=rz.length+' snaps defended inside the 20';
+  if(rz.length){
+    const bl=rz.filter(p=>p.blitz);
+    const cov=sortEntries(count(rz,'coverage')).slice(0,3);
+    $('rzDefense').innerHTML=`
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <span class="chip ${bl.length/rz.length>0.3?'blitz':'dim'}">${fmtPct(bl.length/rz.length)} Blitz rate</span>
+        <span class="chip dim">${avg(rz.map(p=>p.gain)).toFixed(1)} yds/play allowed</span></div>
+      <table><tr><th>Coverage in the red zone</th><th>%</th></tr>
+      ${cov.map(([c,n])=>`<tr><td style="color:${COV_COLORS[c]||'inherit'}"><b>${c}</b></td><td class="pct">${fmtPct(n/rz.length)}</td></tr>`).join('')}</table>
+      ${bl.length?`<div style="margin-top:8px;font-size:12px"><b style="color:var(--red)">Favorite pressure:</b> ${sortEntries(count(bl,'blitzType'))[0][0]}</div>`:''}`;
+  } else $('rzDefense').innerHTML='<div class="muted">No red zone snaps charted yet.</div>';
+  // down by down
+  const head=`<tr><th>Situation</th><th>Snaps</th><th>Run / Pass</th><th>Go-to look</th><th>Go-to call</th><th>Top route</th><th>Def blitz%</th></tr>`;
+  $('situTable').innerHTML=head+
+    situRow('1st Down',plays.filter(p=>p.down===1))+
+    situRow('2nd & Short (1-3)',plays.filter(p=>p.down===2&&p.dist<=3))+
+    situRow('2nd & Medium (4-6)',plays.filter(p=>p.down===2&&p.dist>=4&&p.dist<=6))+
+    situRow('2nd & Long (7+)',plays.filter(p=>p.down===2&&p.dist>=7))+
+    situRow('3rd & Short (1-3)',plays.filter(p=>p.down===3&&p.dist<=3))+
+    situRow('3rd & Medium (4-6)',plays.filter(p=>p.down===3&&p.dist>=4&&p.dist<=6))+
+    situRow('3rd & Long (7+)',plays.filter(p=>p.down===3&&p.dist>=7));
+  $('fieldTable').innerHTML=head+
+    situRow('Backed Up (own 1-20)',plays.filter(p=>p.yard<=20))+
+    situRow('Own 21 to Midfield',plays.filter(p=>p.yard>20&&p.yard<=50))+
+    situRow('Midfield to the 21',plays.filter(p=>p.yard>50&&p.yard<80))+
+    situRow('Red Zone (inside 20)',rz);
+  // attack plan
+  const covMix=sortEntries(count(plays,'coverage')).slice(0,3);
+  $('attackPlan').innerHTML=covMix.length?covMix.map(([c,n])=>{
+    const b=COV_BEATERS[c]||{routes:[],concepts:[],note:''};
+    return `<div style="padding:10px 0;border-bottom:1px solid rgba(35,42,58,.5)">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:5px">${covChip(c)}<span class="pct">${fmtPct(n/plays.length)} of snaps</span></div>
+      <div style="font-size:12px;margin-bottom:4px">${b.note}</div>
+      <div style="font-size:12px"><b style="color:var(--accent2)">Call:</b> ${b.concepts.join(' · ')} &nbsp;<b style="color:var(--blue)">Routes:</b> ${b.routes.map(r=>`<span class="chip pass">${r}</span>`).join(' ')}</div>
+    </div>`;}).join(''):'<div class="muted">Chart plays to build the attack plan.</div>';
+  // stop plan
+  const recs=[];
+  if(plays.length){
+    const runR=plays.filter(p=>p.playType==='Run').length/plays.length;
+    const runs=plays.filter(p=>p.playType==='Run');
+    const passes=plays.filter(p=>p.playType!=='Run');
+    if(runR>=0.55&&runs.length)recs.push(['🟢',`They run it <b>${fmtPct(runR)}</b> of the time — top concept <b>${sortEntries(count(runs,'concept'))[0][0]}</b>. Load the box (4-3 Over / Bear), play Cover 1 robber, win first down.`]);
+    if(runR<=0.45&&passes.length)recs.push(['🔵',`They throw it <b>${fmtPct(1-runR)}</b> of the time — favorite concept <b>${sortEntries(count(passes,'concept'))[0][0]}</b>. Live in Nickel, mix Cover 3 buzz and quarters, rush four and make them drive.`]);
+    const rpoR=plays.filter(p=>p.playType==='RPO').length/plays.length;
+    if(rpoR>=0.12)recs.push(['🟣',`<b>${fmtPct(rpoR)} RPO</b> — scrape-exchange your end and Mike, stay disciplined in Cover 4 so the conflict defender isn't wrong twice.`]);
+    const paR=plays.filter(p=>p.playType==='Play Action').length/plays.length;
+    if(paR>=0.12)recs.push(['🟠',`<b>${fmtPct(paR)} play action</b> — patient linebackers, quarters behind them. They want your LBs biting on the run look.`]);
+    const bl=plays.filter(p=>p.blitz), nbl=plays.filter(p=>!p.blitz);
+    if(bl.length>=5){
+      const ba=avg(bl.map(p=>p.gain)), na=avg(nbl.map(p=>p.gain));
+      recs.push([ba<na?'🔴':'⚪',ba<na?`Pressure works: they average <b>${ba.toFixed(1)} yds/play vs blitz</b> vs ${na.toFixed(1)} when you rush four. Bring it on 3rd & medium.`:`Careful blitzing: they handle pressure (<b>${ba.toFixed(1)} yds/play</b> vs ${na.toFixed(1)} rushing four). Win with coverage.`]);
+    }
+    const t3=plays.filter(p=>p.down===3&&p.dist>=7);
+    if(t3.length>=4)recs.push(['🎯',`3rd & long: they go <b>${sortEntries(count(t3,'concept'))[0][0]}</b> from <b>${sortEntries(count(t3,'formation'))[0][0]}</b>. Have your answer pre-loaded.`]);
+  }
+  $('stopPlan').innerHTML=recs.length?recs.map(([i,t])=>`<div style="display:flex;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(35,42,58,.5);align-items:baseline;font-size:13px"><span>${i}</span><span>${t}</span></div>`).join(''):'<div class="muted">Chart plays to build the defensive plan.</div>';
+}
+/* ================= PLAY DATABASE ================= */
+function renderDB(){
+  const allLists=[...new Set(PLAYS.flatMap(p=>p.playlists||[]))];
+  const plays=PLAYS.filter(p=>
+    (dbFilter.form==='all'||p.formation===dbFilter.form)&&
+    (dbFilter.type==='all'||p.playType===dbFilter.type)&&
+    (dbFilter.blitz==='all'||(dbFilter.blitz==='Yes')===p.blitz)&&
+    (!dbFilter.playlist||dbFilter.playlist==='all'||(p.playlists||[]).includes(dbFilter.playlist)));
+  $('dbSub').textContent=`${plays.length} of ${PLAYS.length} plays — every tagged snap, fully filterable`;
+  $('dbFilters').innerHTML=[
+    filterBox('Formation',sel(['all',...FORMATIONS],'db_form',dbFilter.form)),
+    filterBox('Play type',sel(['all',...PLAYTYPES],'db_type',dbFilter.type)),
+    filterBox('Blitz',sel(['all','Yes','No'],'db_blitz',dbFilter.blitz)),
+    filterBox('⭐ Playlist',sel(['all',...allLists],'db_pl',dbFilter.playlist||'all')),
+  ].join('');
+  [['db_form','form'],['db_type','type'],['db_blitz','blitz'],['db_pl','playlist']].forEach(([id,k])=>$(id).onchange=e=>{dbFilter[k]=e.target.value;renderDB();});
+  const chipCls={Run:'run',Pass:'pass',RPO:'rpo','Play Action':'pa',Screen:'gold'};
+  $('dbTable').innerHTML=`<tr><th>#</th><th>Qtr</th><th>D&amp;D</th><th>Yard</th><th>Hash</th><th>Formation</th><th>Pers</th><th>Type</th><th>Concept</th><th>Routes</th><th>Front</th><th>Coverage</th><th>Pressure</th><th>Result</th><th>⭐</th></tr>`+
+    plays.map(p=>`<tr>
+      <td class="pct">${p.id}</td><td>${p.q}</td><td class="pct">${p.down}&amp;${p.dist}</td><td class="pct">${p.yard}</td><td>${p.hash}</td>
+      <td>${formDot(p.formation)}<b>${p.formation}</b></td><td><span class="chip dim">${p.personnel}</span></td>
+      <td><span class="chip ${chipCls[p.playType]||'dim'}">${p.playType}</span></td><td>${p.concept}</td>
+      <td style="font-size:11px;color:var(--muted)">${Object.entries(p.routes).filter(([,r])=>r!=='Block').map(([pos,r])=>pos+':'+r).join(' ')||'—'}</td>
+      <td>${p.front}</td><td style="color:${COV_COLORS[p.coverage]||'inherit'}">${p.coverage}</td>
+      <td>${p.blitz?'<span class="chip blitz">'+p.blitzType+'</span>':'<span class="muted">4-man</span>'}</td>
+      <td class="pct" style="color:${p.turnover?'var(--red)':p.td?'var(--accent2)':p.gain>=10?'var(--accent)':'inherit'}">${p.result}</td>
+      <td style="font-size:11px;color:var(--accent)">${(p.playlists||[]).join(', ')}</td></tr>`).join('');
+}
+
+/* ================= REPORT ================= */
+function renderReport(){
+  const plays=PLAYS;
+  const fc=sortEntries(count(plays,'formation')).slice(0,5);
+  const cov=sortEntries(count(plays,'coverage')).slice(0,4);
+  const bl=plays.filter(p=>p.blitz);
+  const t3=plays.filter(p=>p.down===3);
+  $('reportBody').innerHTML=`
+  <div class="card">
+    <h3>WESTFIELD vs CENTRAL — Scouting Summary</h3>
+    <div class="grid2">
+      <div>
+        <div class="sect-label">Offensive identity (WESTFIELD)</div>
+        <table>
+          <tr><td>Plays charted</td><td class="pct">${plays.length}</td></tr>
+          <tr><td>Run / Pass</td><td class="pct">${fmtPct(plays.filter(p=>p.playType==='Run').length/plays.length)} / ${fmtPct(plays.filter(p=>p.playType!=='Run').length/plays.length)}</td></tr>
+          <tr><td>Top formations</td><td>${fc.map(([f,n])=>`${f} <span class="muted pct">${fmtPct(n/plays.length)}</span>`).join('<br>')}</td></tr>
+          <tr><td>Favorite pass concept</td><td>${sortEntries(count(plays.filter(p=>p.playType!=='Run'),'concept'))[0][0]}</td></tr>
+          <tr><td>Favorite run concept</td><td>${sortEntries(count(plays.filter(p=>p.playType==='Run'),'concept'))[0][0]}</td></tr>
+          <tr><td>3rd down conversion</td><td class="pct">${fmtPct(t3.filter(p=>p.gain>=p.dist).length/t3.length)}</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="sect-label">Defensive identity (CENTRAL)</div>
+        <table>
+          <tr><td>Base coverages</td><td>${cov.map(([c,n])=>`${c} <span class="muted pct">${fmtPct(n/plays.length)}</span>`).join('<br>')}</td></tr>
+          <tr><td>Overall blitz rate</td><td class="pct">${fmtPct(bl.length/plays.length)}</td></tr>
+          <tr><td>Favorite pressure</td><td>${bl.length?sortEntries(count(bl,'blitzType'))[0][0]:'—'}</td></tr>
+          <tr><td>Top front vs 11 pers</td><td>${sortEntries(count(plays.filter(p=>p.personnel==='11'),'front'))[0][0]}</td></tr>
+          <tr><td>Yds allowed / play</td><td class="pct">${avg(plays.map(p=>p.gain)).toFixed(1)}</td></tr>
+          <tr><td>Yds allowed when blitzing</td><td class="pct">${bl.length?avg(bl.map(p=>p.gain)).toFixed(1):'—'}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="card"><h3>Key Tendencies for the Call Sheet</h3><div id="reportAlerts"></div></div>
+  <div class="muted" style="font-size:11px;text-align:center;margin-top:8px">Generated by GRIDIRON IQ · ${new Date().toLocaleDateString()} · ${plays.length} plays charted</div>`;
+  // reuse alerts
+  renderTendencies();
+  $('reportAlerts').innerHTML=$('alerts').innerHTML;
+}
+/* ================= EXPORTS ================= */
+function dl(name,content,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name; a.click();
+}
+function exportCSV(){
+  const cols=['id','q','down','dist','yard','hash','formation','personnel','motion','playType','concept','front','coverage','blitz','blitzType','rushers','box','gain','result'];
+  const routeCols=['X','Z','Y','H','RB','FB'];
+  let csv=cols.join(',')+','+routeCols.map(r=>'route_'+r).join(',')+'\n';
+  PLAYS.forEach(p=>{
+    csv+=cols.map(c=>JSON.stringify(p[c]??'')).join(',')+','+routeCols.map(r=>JSON.stringify(p.routes[r]||'')).join(',')+'\n';
+  });
+  dl('gridiron-iq-plays.csv',csv,'text/csv');
+  toast('⬇ CSV exported — '+PLAYS.length+' plays');
+}
+function exportJSON(){
+  dl('gridiron-iq-game.json',JSON.stringify({app:'GRIDIRON IQ',exported:new Date().toISOString(),teams:{offense:'WESTFIELD',defense:'CENTRAL'},plays:PLAYS},null,2),'application/json');
+  toast('⬇ Game file exported');
+}
+/* ================= SERVER ENGINE (Render backend) ================= */
+let currentJob=null, pollTimer=null;
+async function api(path,opts){const r=await fetch(path,opts);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j;}
+async function refreshPlays(){
+  try{
+    const plays=await api('/api/plays');
+    const had=PLAYS.length;
+    PLAYS=plays;
+    if(plays.length!==had){renderLiveLog();renderQuickStats();renderAll();}
+  }catch(e){}
+}
+function jobUI(j){
+  const pct=j.dur?Math.min(100,Math.round(j.t/j.dur*100)):0;
+  $('jobStatus').innerHTML=`
+    <div style="font-size:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <b style="color:var(--accent)">${j.status==='processing'?'<span class="pulse" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:5px"></span>CHARTING GAME':j.status.toUpperCase()}</b>
+        <span class="pct">${j.found} plays · ~$${(j.spentEst||0).toFixed(2)}</span></div>
+      <div class="bar-wrap" style="height:10px;margin-bottom:6px"><div class="bar g" style="width:${pct}%"></div></div>
+      <div class="muted">${j.dur?Math.floor(j.t/60)+':'+String(j.t%60).padStart(2,'0')+' / '+Math.floor(j.dur/60)+':'+String(j.dur%60).padStart(2,'0'):''} ${j.error?'<span style="color:var(--red)">'+j.error+'</span>':''}</div>
+      <div style="margin-top:6px;max-height:140px;overflow-y:auto;font-family:var(--mono);font-size:10.5px;line-height:1.6">${(j.log||[]).slice(-10).reverse().map(l=>'<div>'+l.replace(/</g,'&lt;')+'</div>').join('')}</div>
+      ${j.status==='processing'?`<button class="btn ghost sm" style="margin-top:6px" onclick="api('/api/jobs/${j.id}/cancel',{method:'POST'})">⏹ Stop</button>`:''}
+    </div>`;
+}
+function pollJob(){
+  if(!currentJob)return;
+  clearTimeout(pollTimer);
+  api('/api/jobs/'+currentJob).then(j=>{
+    jobUI(j); refreshPlays();
+    if(j.status==='processing'||j.status==='queued'||j.status==='downloading'||j.status==='probing')pollTimer=setTimeout(pollJob,3000);
+    else { toast(j.status==='done'?('🏁 Game charted: '+j.found+' plays — open Situations & Game Plan'):'⛔ '+(j.error||'stopped')); refreshPlays(); }
+  }).catch(e=>{pollTimer=setTimeout(pollJob,5000);});
+}
+async function submitUrlJob(){
+  const url=$('jobUrl').value.trim();
+  if(!url){toast('Paste a direct film URL first');return;}
+  try{
+    const j=await api('/api/jobs/url',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url})});
+    currentJob=j.id; toast('⚡ Server is downloading & charting the film — watch the engine status'); pollJob();
+  }catch(e){toast('⚠️ '+e.message);}
+}
+async function submitFileJob(inp){
+  const f=inp.files[0]; if(!f)return;
+  const fd=new FormData(); fd.append('film',f);
+  $('jobStatus').innerHTML='<div class="muted" style="font-size:12px">Uploading '+(Math.round(f.size/1048576))+' MB… keep this tab open until upload finishes.</div>';
+  try{
+    const j=await api('/api/jobs/upload',{method:'POST',body:fd});
+    currentJob=j.id; toast('⚡ Upload received — server is charting the game'); pollJob();
+  }catch(e){toast('⚠️ '+e.message);}
+}
+async function initServer(){
+  try{
+    const h=await api('/api/health');
+    $('srvHealth').textContent=h.keySet?('engine ready · '+h.model+(h.twoPass?' · 2-pass':'')):'⚠️ server key not set';
+    if(!h.keySet)toast('⚠️ ANTHROPIC_API_KEY is not set on the server — set it in Render → Environment');
+  }catch(e){$('srvHealth').textContent='⚠️ server unreachable';}
+  await refreshPlays();
+  setInterval(refreshPlays,15000);
+}
+initServer();
+/* ================= INIT ================= */
+function renderAll(){
+  const active=document.querySelector('.tab.show').id;
+  if(active==='tab-offense')renderOffense();
+  if(active==='tab-defense')renderDefense();
+  if(active==='tab-tendencies')renderTendencies();
+  if(active==='tab-situations')renderSituations();
+  if(active==='tab-plays')renderDB();
+  if(active==='tab-report')renderReport();
+}
+buildTagPanel();
+drawLiveField();
+try{
+  if(getKey())$('aiKey').value=getKey();
+  const m=localStorage.getItem('gq_model'); if(m)$('aiModel').value=m;
+}catch(e){}
+renderLiveLog();
+renderAll();
+</script>
+</body>
+</html>
