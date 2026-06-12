@@ -153,9 +153,9 @@
   <div class="film-grid">
     <div>
       <div class="card" style="padding:12px;margin-bottom:12px">
-        <h3 style="margin-bottom:8px">🎥 Game Film <span class="hint" id="filmHint">watch &amp; scrub the film</span></h3>
+        <h3 style="margin-bottom:8px">🎥 Game Film <span class="hint" id="filmHint">click any play below to watch it</span></h3>
         <video id="filmPlayer" controls playsinline style="width:100%;border-radius:8px;background:#000;display:none"></video>
-        <div id="filmPlaceholder" class="muted" style="font-size:12px;padding:18px;text-align:center">Load or chart a film below and it plays here so you can watch along.</div>
+        <div id="filmPlaceholder" class="muted" style="font-size:12px;padding:18px;text-align:center">▶ Click any play in the Live Game Log to watch that exact snap — the server clips it for you.</div>
       </div>
       <div class="card" style="padding:16px;margin-bottom:12px">
         <h3 style="margin-bottom:4px">Chart a Game</h3>
@@ -769,8 +769,9 @@ function renderLiveLog(){
   const real=PLAYS.filter(p=>!p.demo);
   const demoN=PLAYS.filter(p=>p.demo).length;
   const chipCls={Run:'run',Pass:'pass',RPO:'rpo','Play Action':'pa',Screen:'gold'};
-  const rows=real.slice(-12).reverse().map(p=>`
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:7px 4px;border-bottom:1px solid rgba(35,42,58,.5);font-size:12px">
+  const rows=real.slice(-14).reverse().map(p=>`
+    <div class="clickable" onclick="watchPlay(${p.id})" title="Watch this play" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:7px 4px;border-bottom:1px solid rgba(35,42,58,.5);font-size:12px">
+      <span style="color:var(--accent)">▶</span>
       <span class="pct" style="color:var(--muted)">#${p.id}</span>
       <span class="pct">Q${p.q} · ${p.down}&amp;${p.dist}</span>
       ${formChip(p.formation)}
@@ -1714,7 +1715,16 @@ function loadPlayer(url){
   const ph=$('filmPlaceholder'); if(ph)ph.style.display='none';
   try{localStorage.setItem('gq_film',url);}catch(e){}
 }
-function quickChart(url){ $('jobUrl').value=url; if($('jobUrl2'))$('jobUrl2').value=url; loadPlayer(url); submitUrlJob(); }
+function quickChart(url){ $('jobUrl').value=url; if($('jobUrl2'))$('jobUrl2').value=url; submitUrlJob(); }
+function watchPlay(id){
+  const v=$('filmPlayer'); if(!v)return;
+  const p=PLAYS.find(x=>x.id===id);
+  $('filmHint').textContent=p?('▶ '+p.formation+' · '+p.playType+' '+p.concept+' vs '+p.coverage):'loading clip…';
+  const ph=$('filmPlaceholder'); if(ph)ph.style.display='none';
+  v.style.display='block'; v.removeAttribute('src'); v.src='/api/clip/'+id; v.load();
+  v.play().catch(()=>{});
+  toast('🎬 Generating film clip for play #'+id+' — first load takes a few seconds');
+}
 function renderLatestPlay(){
   const real=PLAYS.filter(p=>!p.demo);
   if(!real.length)return;
@@ -1752,7 +1762,6 @@ function pollJob(){
 async function submitUrlJob(){
   const url=$('jobUrl').value.trim();
   if(!url){toast('Paste a direct film URL first');return;}
-  loadPlayer(url);
   try{
     const j=await api('/api/jobs/url',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url})});
     currentJob=j.id; toast('⚡ Server is downloading & charting the film — watch the engine status'); pollJob();
@@ -1774,9 +1783,6 @@ async function initServer(){
     if(!h.keySet)toast('⚠️ ANTHROPIC_API_KEY is not set on the server — set it in Render → Environment');
   }catch(e){$('srvHealth').textContent='⚠️ server unreachable';}
   await refreshPlays();
-  // auto-load the film so it's watchable the moment the app opens
-  let savedFilm=null; try{savedFilm=localStorage.getItem('gq_film');}catch(e){}
-  loadPlayer(savedFilm||SHOWCASE_FILM);
   setInterval(refreshPlays,15000);
 }
 initServer();

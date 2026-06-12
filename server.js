@@ -169,13 +169,16 @@ function toPlay(j, videoT, jobId) {
     gain, td: false, turnover: false,
     result: (j.result && j.result.description) ? j.result.description : (gain >= 0 ? '+' + gain + ' yds' : gain + ' yds'),
     summary: rd.summary || '', observations: rd.keyObservations || [],
-    confidence: conf, playlists: []
+    confidence: conf, playlists: [], filmSrc: lastFilm
   };
 }
 
 /* ---------------- jobs ---------------- */
 const JOBS = {}; // id -> {status, log[], t, dur, found, scans, error, spentEst}
 let processing = false;
+let lastFilm = null; // source of the most recent/charted film, for on-demand clips
+const CLIP_DIR = path.join(DATA_DIR, 'clips');
+fs.mkdirSync(CLIP_DIR, { recursive: true });
 
 async function processJob(id, file, isRemote) {
   const job = JOBS[id];
@@ -183,6 +186,7 @@ async function processJob(id, file, isRemote) {
   try {
     job.status = 'probing';
     if (isRemote) log('Streaming film directly (no full download) — reading frames on demand.');
+    lastFilm = file; // remember source for on-demand play cutups
     const dur = await ffprobeDuration(file);
     if (!dur) throw new Error('Could not read video duration — unsupported file?');
     job.dur = Math.round(dur);
@@ -238,6 +242,25 @@ app.use(express.static(__dirname, { index: 'index.html' }));
 const upload = multer({ dest: WORK_DIR, limits: { fileSize: 4 * 1024 * 1024 * 1024 } });
 
 app.get('/api/health', (req, res) => res.json({ ok: true, keySet: !!API_KEY, model: MODEL_FULL, twoPass: TWO_PASS, plays: PLAYS.length }));
+
+// On-demand play cutup: extracts a short web-optimized clip of a charted play
+app.get('/api/clip/:playId', async (req, res) => {
+  const p = PLAYS.find(x => String(x.id) === String(req.params.playId));
+  if (!p) return res.status(404).json({ error: 'no such play' });
+  const src = p.filmSrc || lastFilm;
+  if (!src) return res.status(400).json({ error: 'film source unavailable (was this play charted from an upload that has been cleared?)' });
+  const start = Math.max(0, (p.videoT || 0) - 3);
+  const out = path.join(CLIP_DIR, 'clip-' + p.id + '.mp4');
+  try {
+    if (!fs.existsSync(out)) {
+      // 14s, 854px wide, faststart so the browser can stream it instantly
+      await run('ffmpeg', ['-ss', String(start), '-i', src, '-t', '14', '-vf', 'scale=854:-2', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '26', '-an', '-movflags', '+faststart', '-y', out], 120000);
+    }
+    res.sendFile(out);
+  } catch (e) {
+    res.status(500).json({ error: 'clip generation failed: ' + e.message.slice(0, 200) });
+  }
+});
 app.get('/api/plays', (req, res) => res.json(PLAYS));
 app.delete('/api/plays', (req, res) => { PLAYS = []; savePlays(); res.json({ ok: true }); });
 
