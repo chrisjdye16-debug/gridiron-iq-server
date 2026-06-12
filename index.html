@@ -152,6 +152,11 @@
   </div>
   <div class="film-grid">
     <div>
+      <div class="card" style="padding:12px;margin-bottom:12px">
+        <h3 style="margin-bottom:8px">🎥 Game Film <span class="hint" id="filmHint">watch &amp; scrub the film</span></h3>
+        <video id="filmPlayer" controls playsinline style="width:100%;border-radius:8px;background:#000;display:none"></video>
+        <div id="filmPlaceholder" class="muted" style="font-size:12px;padding:18px;text-align:center">Load or chart a film below and it plays here so you can watch along.</div>
+      </div>
       <div class="card" style="padding:16px;margin-bottom:12px">
         <h3 style="margin-bottom:4px">Chart a Game</h3>
         <p class="muted" style="font-size:12.5px;margin-bottom:12px">Paste any film link — YouTube, Hudl, or a direct video — or upload a file. The server breaks down every play on its own. Nothing to watch, nothing to click through.</p>
@@ -1701,7 +1706,15 @@ async function refreshPlays(){
     if(plays.length!==had){renderLatestPlay();renderLiveLog();renderQuickStats();renderAll();}
   }catch(e){}
 }
-function quickChart(url){ $('jobUrl').value=url; if($('jobUrl2'))$('jobUrl2').value=url; submitUrlJob(); }
+const SHOWCASE_FILM='https://archive.org/download/ncaa-football-2023.11.18-georgia-at-tennessee-skycam/ncaaf.2023.11.18.georgia.at.tennessee-skycam.mp4';
+function loadPlayer(url){
+  const v=$('filmPlayer'); if(!v||!url)return;
+  if(/youtube\.com|youtu\.be/.test(url))return; // YouTube can't be charted server-side anyway
+  v.src=url; v.style.display='block';
+  const ph=$('filmPlaceholder'); if(ph)ph.style.display='none';
+  try{localStorage.setItem('gq_film',url);}catch(e){}
+}
+function quickChart(url){ $('jobUrl').value=url; if($('jobUrl2'))$('jobUrl2').value=url; loadPlayer(url); submitUrlJob(); }
 function renderLatestPlay(){
   const real=PLAYS.filter(p=>!p.demo);
   if(!real.length)return;
@@ -1739,6 +1752,7 @@ function pollJob(){
 async function submitUrlJob(){
   const url=$('jobUrl').value.trim();
   if(!url){toast('Paste a direct film URL first');return;}
+  loadPlayer(url);
   try{
     const j=await api('/api/jobs/url',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url})});
     currentJob=j.id; toast('⚡ Server is downloading & charting the film — watch the engine status'); pollJob();
@@ -1760,6 +1774,9 @@ async function initServer(){
     if(!h.keySet)toast('⚠️ ANTHROPIC_API_KEY is not set on the server — set it in Render → Environment');
   }catch(e){$('srvHealth').textContent='⚠️ server unreachable';}
   await refreshPlays();
+  // auto-load the film so it's watchable the moment the app opens
+  let savedFilm=null; try{savedFilm=localStorage.getItem('gq_film');}catch(e){}
+  loadPlayer(savedFilm||SHOWCASE_FILM);
   setInterval(refreshPlays,15000);
 }
 initServer();

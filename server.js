@@ -44,7 +44,7 @@ const MOTIONS = ['None','Jet','Orbit','Short','Across','Shift TE'];
 const PLAYTYPES = ['Run','Pass','RPO','Play Action','Screen'];
 const PERSONNEL = {'Gun Trips Rt':'11','Gun Trips Lt':'11','Gun Spread 2x2':'10','Gun Empty':'00','Gun Bunch Rt':'11','I-Form':'21','Singleback Ace':'12','Pistol Strong':'12','Gun Wing Lt':'11','Heavy Goal Line':'22','Kickoff':'ST','Punt':'ST','Field Goal':'ST'};
 
-const SNAP_SYS = `You classify single frames from football game film. Respond ONLY with JSON: {"live": true|false}. "live"=true if the frame shows a real-time game view of ANY play about to start or in its first seconds: offense lined up at the line of scrimmage pre-snap, ball just snapped, kickoff alignment or kick just struck, punt formation, or field-goal formation. "live"=false for: replays (slow-motion, zoomed isolations, replay wipes/graphics), huddles, players walking between plays, crowd/sideline/coach/bench shots, commercials, halftime, full-screen score graphics, celebrations, injury stoppages.`;
+const SNAP_SYS = `You classify single frames from football game film. Respond ONLY with JSON: {"live": true|false}. "live"=true ONLY if the frame shows a snap that is about to happen or has just happened in a real game: BOTH teams clearly aligned on opposite sides of a line of scrimmage with the offense set (linemen in stance), OR the ball in the first 1-2 seconds of a live play. Require a clear offensive formation set at the LOS. "live"=false for ALL of: pre-game warmups, players milling/stretching/jogging with no set formation, huddles, players walking between plays, teams not yet aligned, replays (slow-motion, zoomed isolations, replay wipes/graphics), crowd/sideline/coach/bench shots, commercials, halftime, full-screen score graphics, celebrations, injury stoppages, timeouts. When unsure, answer false.`;
 
 const AI_SYS = `You are an elite NFL film analyst with 25 years of experience breaking down All-22 and broadcast film. You are given sequential frames of ONE football play: the first frames are pre-snap alignment, the rest show the play developing after the snap.
 
@@ -125,10 +125,26 @@ async function breakdown(frames) {
 function toPlay(j, videoT, jobId) {
   const st = j.situation || {}, d = j.defense || {}, rd = j.read || {}, conf = rd.confidence || {};
   const formation = nearest(j.formation, FORMATIONS) || 'Gun Spread 2x2';
-  const playType = nearest(j.playType, PLAYTYPES) || 'Pass';
+  const isST = ['Kickoff', 'Punt', 'Field Goal'].includes(formation);
+  let playType = nearest(j.playType, PLAYTYPES) || 'Pass';
+  // HARD RULE 1: concept must match play type — no "Pass Inside Zone" mismatches
+  let rawConcept = nearest(j.concept, [...RUN_CONCEPTS, ...PASS_CONCEPTS, ...ST_CONCEPTS]);
+  const conceptIsRun = RUN_CONCEPTS.includes(rawConcept);
+  const conceptIsPass = PASS_CONCEPTS.includes(rawConcept);
+  let concept;
+  if (isST) { concept = nearest(j.concept, ST_CONCEPTS) || 'Kickoff Return'; }
+  else if (playType === 'Run') { concept = conceptIsRun ? rawConcept : 'Inside Zone'; }
+  else if (playType === 'Screen') { concept = 'Screen Game'; }
+  else { // Pass / Play Action / RPO
+    concept = conceptIsPass ? rawConcept : (conceptIsRun ? 'Stick' : (rawConcept || 'Stick'));
+  }
+  // HARD RULE 2: on a run play, every receiver assignment is Block (no phantom routes)
   const routes = {};
   if (j.routes) for (const [pos, r] of Object.entries(j.routes)) {
-    const rr = nearest(r, ['Run Path', ...ROUTES]); if (rr) routes[pos] = rr;
+    let rr = nearest(r, ['Run Path', ...ROUTES]);
+    if (!rr) continue;
+    if (playType === 'Run' && pos !== 'RB' && pos !== 'FB') rr = 'Block';
+    routes[pos] = rr;
   }
   const blitz = !!d.blitz;
   const gain = (j.result && typeof j.result.gain === 'number') ? Math.round(j.result.gain) : 0;
@@ -195,11 +211,12 @@ async function processJob(id, file, isRemote) {
           for (const off of offsets) frames.push(await extractFrame(file, t + off, tmp));
           const j = await breakdown(frames);
           const conf = (j.read && j.read.confidence) || {};
-          if ((conf.formation || 0) >= 0.25) {
+          // require solid formation AND coverage confidence so junk/transition frames are rejected
+          if ((conf.formation || 0) >= 0.45 && (conf.coverage || 0) >= 0.25) {
             const p = toPlay(j, t, id);
             PLAYS.push(p); savePlays(); job.found++;
             log('✅ Play ' + job.found + ': ' + p.formation + ' · ' + p.playType + ' ' + p.concept + ' vs ' + p.coverage + (p.blitz ? ' +BLITZ' : '') + ' → ' + p.result);
-          } else log('Skipped low-confidence capture (replay/graphic).');
+          } else log('Skipped low-confidence capture @' + Math.floor(t/60) + ':' + String(Math.floor(t%60)).padStart(2,'0') + ' (not a clean live snap).');
         } catch (e) { log('Breakdown error: ' + e.message.slice(0, 180)); }
         t += POST_SKIP;
       } else t += SCAN_STEP;
