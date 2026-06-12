@@ -63,7 +63,7 @@ Respond with ONLY a JSON object (no markdown fences, no commentary) with this ex
  "concept": <from: ${RUN_CONCEPTS.join(', ')} OR ${PASS_CONCEPTS.join(', ')} OR ${ST_CONCEPTS.join(', ')}>,
  "motion": <one of: ${MOTIONS.join(', ')}>,
  "routes": {"X": <route>, "Z": <route>, "Y": <route>, "H": <route>, "RB": <route>} using only: ${ROUTES.join(', ')}, Run Path — include only positions you can identify,
- "defense": {"front": <closest from: ${FRONTS.join(', ')}>, "preSnapShell": <what safeties SHOWED pre-snap>, "postSnapCoverage": <closest from: ${COVERAGES.join(', ')}>, "rotation": <null or short description>, "blitz": <true/false>, "blitzType": <one of: ${BLITZ_TYPES.join(', ')}>, "rushers": <number>, "box": <number>},
+ "defense": {"front": <closest from: ${FRONTS.join(', ')}>, "preSnapShell": <what safeties SHOWED pre-snap>, "postSnapCoverage": <closest from: ${COVERAGES.join(', ')}>, "rotation": <null or short description>, "blitz": <true/false>, "blitzType": <one of: ${BLITZ_TYPES.join(', ')}>, "blitzOrigin": <if blitz: "Field" (wide side), "Boundary" (short side), or "Interior" (A/B gap); else null>, "blitzPlayer": <if blitz: the position bringing pressure, e.g. "Mike LB","Will LB","Sam LB","Nickel","Strong Safety","Boundary Corner","Free Safety"; else null>, "rushers": <number>, "box": <number>},
  "result": {"gain": <estimated yards, integer>, "description": <short outcome>},
  "read": {"summary": <2-3 sentence scout-quality breakdown>, "keyObservations": [<3-5 short coach-relevant observations>], "confidence": {"formation": 0-1, "coverage": 0-1, "routes": 0-1}}
 }
@@ -148,6 +148,7 @@ function toPlay(j, videoT, jobId) {
     coverage: nearest(d.postSnapCoverage, COVERAGES) || 'Cover 3',
     preSnapShell: d.preSnapShell || null, rotation: d.rotation || null,
     blitz, blitzType: blitz ? (nearest(d.blitzType, BLITZ_TYPES) || 'Mike A-Gap') : 'None',
+    blitzOrigin: blitz ? (d.blitzOrigin || null) : null, blitzPlayer: blitz ? (d.blitzPlayer || null) : null,
     rushers: d.rushers || (blitz ? 5 : 4), box: d.box || 7,
     gain, td: false, turnover: false,
     result: (j.result && j.result.description) ? j.result.description : (gain >= 0 ? '+' + gain + ' yds' : gain + ' yds'),
@@ -226,26 +227,38 @@ app.post('/api/jobs/url', async (req, res) => {
   if (!API_KEY) return res.status(400).json({ error: 'ANTHROPIC_API_KEY is not set on the server.' });
   if (processing) return res.status(429).json({ error: 'A film is already processing — wait for it to finish.' });
   const url = String((req.body || {}).url || '').trim();
-  if (!/^https?:\/\//.test(url)) return res.status(400).json({ error: 'Provide a direct video URL (.mp4/.mov/.webm). YouTube links are not supported server-side — download your film and upload the file instead.' });
-  if (/youtube\.com|youtu\.be/.test(url)) return res.status(400).json({ error: 'YouTube cannot be processed server-side (their terms block downloads). Upload a video file, or use Hudl/exchange film exports.' });
+  if (!/^https?:\/\//.test(url)) return res.status(400).json({ error: 'Provide a video URL (YouTube, Hudl, or a direct .mp4/.mov/.webm link).' });
   const id = crypto.randomBytes(6).toString('hex');
+  const isYT = /youtube\.com|youtu\.be/.test(url);
   JOBS[id] = { id, status: 'downloading', log: [], t: 0, dur: 0, found: 0, scans: 0, spentEst: 0 };
   processing = true;
   res.json({ id });
   const dest = path.join(WORK_DIR, id + '-src');
   try {
-    JOBS[id].log.push('Downloading film…');
-    const r = await fetch(url, { redirect: 'follow' });
-    if (!r.ok) throw new Error('Download failed: HTTP ' + r.status);
-    const ws = fs.createWriteStream(dest);
-    await new Promise((resolve, reject) => {
-      const { Readable } = require('stream');
-      Readable.fromWeb(r.body).pipe(ws).on('finish', resolve).on('error', reject);
-    });
-    JOBS[id].log.push('Download complete (' + Math.round(fs.statSync(dest).size / 1048576) + ' MB).');
+    if (isYT) {
+      JOBS[id].log.push('Fetching from YouTube via yt-dlp…');
+      // cap at 720p to keep download/processing reasonable
+      await run('yt-dlp', ['-f', 'bv*[height<=720]+ba/b[height<=720]/b', '--merge-output-format', 'mp4', '--no-playlist', '-o', dest + '.%(ext)s', url], 600000);
+      const made = fs.readdirSync(WORK_DIR).find(f => f.startsWith(id + '-src.'));
+      if (!made) throw new Error('yt-dlp produced no file');
+      fs.renameSync(path.join(WORK_DIR, made), dest);
+      JOBS[id].log.push('YouTube download complete (' + Math.round(fs.statSync(dest).size / 1048576) + ' MB).');
+    } else {
+      JOBS[id].log.push('Downloading film…');
+      const r = await fetch(url, { redirect: 'follow' });
+      if (!r.ok) throw new Error('Download failed: HTTP ' + r.status);
+      const ws = fs.createWriteStream(dest);
+      await new Promise((resolve, reject) => {
+        const { Readable } = require('stream');
+        Readable.fromWeb(r.body).pipe(ws).on('finish', resolve).on('error', reject);
+      });
+      JOBS[id].log.push('Download complete (' + Math.round(fs.statSync(dest).size / 1048576) + ' MB).');
+    }
     processJob(id, dest);
   } catch (e) {
-    JOBS[id].status = 'error'; JOBS[id].error = e.message.slice(0, 300); processing = false;
+    let msg = e.message.slice(0, 300);
+    if (isYT && /sign in|bot|429|403|confirm/i.test(msg)) msg = 'YouTube blocked this download from the server IP (common on cloud hosts). Download the film yourself and use Upload Film instead.';
+    JOBS[id].status = 'error'; JOBS[id].error = msg; processing = false;
   }
 });
 

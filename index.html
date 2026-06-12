@@ -7,23 +7,27 @@
 <title>GRIDIRON IQ — Film Intelligence Platform</title>
 <style>
   :root{
-    --bg:#0b0e13; --panel:#12161f; --panel2:#181d29; --line:#232a3a;
-    --text:#e8ebf2; --muted:#8a93a6; --accent:#d4a437; --accent2:#3fae6a;
-    --red:#d4574e; --blue:#4e8fd4; --purple:#9a6fd4; --orange:#d4894e;
+    --bg:#080a0f; --panel:#11151e; --panel2:#171c28; --line:#222a3a;
+    --text:#eef1f7; --muted:#8893a8; --accent:#e0b145; --accent2:#3fae6a;
+    --red:#e0635a; --blue:#5a97da; --purple:#9a6fd4; --orange:#d4894e;
     --mono:'SF Mono','Cascadia Code',Consolas,monospace;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.18);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,'Segoe UI',Inter,Roboto,sans-serif;min-height:100vh}
-  header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#121724,#0d1119);position:sticky;top:0;z-index:50}
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8a6a1e);display:flex;align-items:center;justify-content:center;font-weight:800;color:#0b0e13;font-size:15px;letter-spacing:-1px}
-  .logo h1{font-size:17px;letter-spacing:2px;font-weight:800}
+  body{background:radial-gradient(1200px 600px at 70% -10%,#121a2a 0%,var(--bg) 55%);color:var(--text);font:14px/1.55 -apple-system,'Segoe UI',Inter,Roboto,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+  header{display:flex;align-items:center;gap:16px;padding:13px 26px;border-bottom:1px solid var(--line);background:rgba(13,17,25,.82);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+  .logo{display:flex;align-items:center;gap:11px}
+  .logo-mark{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#9a7820);display:flex;align-items:center;justify-content:center;font-weight:800;color:#0b0e13;font-size:15px;letter-spacing:-1px;box-shadow:0 2px 10px rgba(224,177,69,.25)}
+  .logo h1{font-size:17px;letter-spacing:2.5px;font-weight:800}
   .logo h1 span{color:var(--accent)}
-  .logo small{display:block;font-size:10px;letter-spacing:3px;color:var(--muted);font-weight:500}
-  nav{display:flex;gap:4px;margin-left:24px;flex-wrap:wrap}
-  nav button{background:none;border:none;color:var(--muted);padding:9px 15px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.3px;transition:.15s}
+  .logo small{display:block;font-size:9.5px;letter-spacing:3px;color:var(--muted);font-weight:500}
+  nav{display:flex;gap:2px;margin-left:22px;flex-wrap:wrap}
+  nav button{background:none;border:none;color:var(--muted);padding:9px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.2px;transition:.15s}
   nav button:hover{color:var(--text);background:var(--panel2)}
-  nav button.active{color:var(--accent);background:rgba(212,164,55,.1)}
+  nav button.active{color:var(--accent);background:rgba(224,177,69,.12);box-shadow:inset 0 0 0 1px rgba(224,177,69,.2)}
+  .chip-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:7px 13px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s}
+  .chip-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(224,177,69,.08)}
+  .mini-field{background:linear-gradient(180deg,#0e2417,#0a1a11);border:1px solid var(--line);border-radius:8px;display:block}
   .hdr-right{margin-left:auto;display:flex;gap:10px;align-items:center}
   .scout-toggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
   .scout-toggle button{background:none;border:none;color:var(--muted);padding:7px 14px;cursor:pointer;font-size:12px;font-weight:700}
@@ -40,8 +44,8 @@
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   @media(max-width:1100px){.grid2,.grid3{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
-  .card h3{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .card h3{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;font-weight:700}
   .card h3 .hint{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;font-size:12px;float:right}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:8px 10px;border-bottom:1px solid var(--line)}
@@ -148,44 +152,29 @@
   </div>
   <div class="film-grid">
     <div>
-      <div class="url-bar">
-        <select id="filmLib" style="max-width:260px" onchange="if(this.value){document.getElementById('urlInput').value=this.value;loadURL();}">
-          <option value="">🎞 Film Library (verified)…</option>
-          <option value="https://upload.wikimedia.org/wikipedia/commons/9/96/UVA_Football_Game_1950s.webm">★ INSTANT DEMO — UVA Game Film (100% hands-free, verified working)</option>
-          <option value="https://www.youtube.com/watch?v=BVtjebgP22g">Georgia Tech vs North Carolina — 2024 ACC</option>
-          <option value="https://www.youtube.com/watch?v=u3qI7nvbmVc">Clemson vs Georgia — 2024</option>
-          <option value="https://www.youtube.com/watch?v=rXWy32gzplY">LSU vs Clemson — 2025 ACC</option>
-          <option value="https://www.youtube.com/watch?v=7oVqpeDqfjM">Tennessee vs NC State — 2024 ACC</option>
-          <option value="https://www.youtube.com/watch?v=_TTv_jlMKsA">Maryland vs Virginia — 2024 ACC</option>
-          <option value="https://www.youtube.com/watch?v=QgeJ9Sgyz8Q">CFP Natl Championship — Ohio St vs Notre Dame</option>
-        </select>
-        <input type="text" id="urlInput" placeholder="Paste a YouTube, Hudl, Vimeo, or direct video URL (.mp4 / .mov / .webm)…" onkeydown="if(event.key==='Enter')loadURL()">
-        <button class="btn sm" onclick="loadURL()">▶ Load URL</button>
-        <button class="btn ghost sm" onclick="document.getElementById('fileInput').click()">📁 Local File</button>
-      </div>
-      <div class="video-box" id="videoBox">
-        <video id="vid" controls></video>
-        <div class="embed-wrap" id="embedWrap"></div>
-        <div class="drop-hint" id="dropHint" onclick="document.getElementById('fileInput').click()">
-          <div class="big">🏈</div>
-          <b>Paste a film URL above, or drop a video file here</b>
-          <div style="font-size:12px;margin-top:6px">This player is for reviewing film. To CHART a game, use the green <b>Process URL</b> / <b>Upload Film</b> buttons in the top bar — the server does the rest.</div>
+      <div class="card" style="padding:16px;margin-bottom:12px">
+        <h3 style="margin-bottom:4px">Chart a Game</h3>
+        <p class="muted" style="font-size:12.5px;margin-bottom:12px">Paste any film link — YouTube, Hudl, or a direct video — or upload a file. The server breaks down every play on its own. Nothing to watch, nothing to click through.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="jobUrl2" placeholder="Paste film URL (YouTube · Hudl · .mp4 / .mov)" style="flex:1;min-width:220px;padding:9px 12px" onkeydown="if(event.key==='Enter'){document.getElementById('jobUrl').value=this.value;submitUrlJob();}">
+          <button class="btn green" onclick="document.getElementById('jobUrl').value=document.getElementById('jobUrl2').value;submitUrlJob()">⚡ Chart This Film</button>
+          <button class="btn ghost" onclick="document.getElementById('jobFile').click()">📁 Upload File</button>
         </div>
-        <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="loadVideo(this)">
+        <div style="margin-top:12px">
+          <div class="muted" style="font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Sample college film — one click</div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap" id="sampleChips">
+            <button class="chip-btn" onclick="quickChart('https://www.youtube.com/watch?v=BVtjebgP22g')">Georgia Tech @ North Carolina</button>
+            <button class="chip-btn" onclick="quickChart('https://www.youtube.com/watch?v=rXWy32gzplY')">LSU @ Clemson</button>
+            <button class="chip-btn" onclick="quickChart('https://www.youtube.com/watch?v=7oVqpeDqfjM')">Tennessee @ NC State</button>
+            <button class="chip-btn" onclick="quickChart('https://www.youtube.com/watch?v=QgeJ9Sgyz8Q')">CFP Final — Ohio St vs Notre Dame</button>
+          </div>
+        </div>
       </div>
-      <div class="vid-controls">
-        <button class="btn ghost sm" onclick="step(-1)">⏮ −1 fr</button>
-        <button class="btn ghost sm" onclick="step(1)">+1 fr ⏭</button>
-        <button class="btn ghost sm" onclick="rate(.25)">¼×</button>
-        <button class="btn ghost sm" onclick="rate(.5)">½×</button>
-        <button class="btn ghost sm" onclick="rate(1)">1×</button>
-        <button class="btn sm" onclick="markSnap()">⏱ Mark Snap</button>
-        <span class="muted" id="snapInfo" style="font-size:12px"></span>
-      </div>
-      <div class="card" style="margin-top:12px;padding:12px">
-        <h3 style="margin-bottom:8px">📡 Live Game Log <span class="hint" id="logHint">plays appear here as the AI charts them</span></h3>
+      <div class="card" style="padding:12px">
+        <h3 style="margin-bottom:8px">📡 Live Game Log <span class="hint" id="logHint">plays appear here as the engine charts them</span></h3>
         <div id="liveLog"></div>
       </div>
+      <input type="file" id="jobFile2" accept="video/*" style="display:none">
     </div>
     <div class="right-col">
       <div class="card" style="padding:12px;margin-bottom:10px">
@@ -194,7 +183,8 @@
       </div>
       <div id="batchStatus" style="display:none"></div>
       <div class="card" style="padding:12px;margin-bottom:10px">
-        <h3 style="margin-bottom:8px">Play Diagram <span class="hint">pre → post snap</span></h3>
+        <h3 style="margin-bottom:8px">Latest Play Diagram <span class="hint">updates as the engine charts</span></h3>
+        <div id="latestDet" style="margin-bottom:8px"><div class="muted" style="font-size:12px">The most recent charted play draws here automatically.</div></div>
         <div id="prePostBar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px"></div>
         <svg id="liveField" class="field-svg" viewBox="0 0 600 340"></svg>
         <div class="legend" style="margin-top:6px">
@@ -266,8 +256,9 @@
   </div>
   <div class="grid2">
     <div class="card"><h3>Blitz Rate by Down</h3><div id="blitzByDown"></div></div>
-    <div class="card"><h3>Blitz Origin &amp; Pressure Results</h3><div id="blitzDetail"></div></div>
+    <div class="card"><h3>Blitz Origin, Player &amp; Pressure Results</h3><div id="blitzDetail"></div></div>
   </div>
+  <div class="card"><h3>🎯 Secondary Weaknesses <span class="hint">routes &amp; concepts beating their coverage</span></h3><div id="secWeak"></div></div>
 </div>
 
 <!-- ============ TENDENCIES ============ -->
@@ -697,8 +688,10 @@ function loadVideo(inp){
   showNative(URL.createObjectURL(f),'file');
 }
 const vb=$('videoBox');
-vb.addEventListener('dragover',e=>e.preventDefault());
-vb.addEventListener('drop',e=>{e.preventDefault(); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('video')) showNative(URL.createObjectURL(f),'file');});
+if(vb){
+  vb.addEventListener('dragover',e=>e.preventDefault());
+  vb.addEventListener('drop',e=>{e.preventDefault(); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('video')) showNative(URL.createObjectURL(f),'file');});
+}
 function step(n){
   if(activeSource==='yt'&&ytPlayer&&ytPlayer.getCurrentTime){ ytPlayer.pauseVideo(); ytPlayer.seekTo(Math.max(0,ytPlayer.getCurrentTime()+n/30),true); return; }
   if(activeSource==='embed'){ toast('Frame-step isn’t available for this embedded player — use its own controls'); return; }
@@ -1124,6 +1117,36 @@ function applyAI(j){
   renderPrePost(); renderQuickStats();
   toast('🧠 AI breakdown complete — review and confirm');
 }
+/* ================= MINI DIAGRAMS (formation + coverage thumbnails) ================= */
+function miniFormationSVG(formation){
+  const W=120,H=70,cx=W/2,losY=H-16,half=(W-22)/2;
+  let s=`<line x1="8" y1="${losY}" x2="${W-8}" y2="${losY}" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
+  for(let i=-2;i<=2;i++)s+=`<circle cx="${cx+i*7}" cy="${losY-3}" r="2.2" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1"/>`;
+  const gun=formation.startsWith('Gun')||formation==='Gun Empty', pistol=formation.startsWith('Pistol');
+  const qbY=gun?losY-3+16:pistol?losY-3+11:losY-3+6;
+  s+=`<rect x="${cx-2.5}" y="${qbY-2.5}" width="5" height="5" rx="1" fill="none" stroke="var(--accent)" stroke-width="1"/>`;
+  (ALIGN[formation]||[]).forEach(([pos,rx,depth])=>{
+    const x=cx+rx*half, y=losY-3+depth*70;
+    s+=`<circle cx="${x}" cy="${y}" r="3" fill="${FORM_COLORS[formation]||'#8a93a6'}" opacity=".9"/>`;
+  });
+  return `<svg class="mini-field" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+}
+// schematic safety/corner shells for each coverage
+const COV_SHELL={
+ 'Cover 0':{deep:0,man:true},'Cover 1':{deep:1,man:true},'Cover 2':{deep:2},'Cover 3':{deep:3},
+ 'Cover 4 Quarters':{deep:4},'Cover 6':{deep:4,split:true},'2-Man':{deep:2,man:true},'Tampa 2':{deep:2,mlb:true}};
+function miniCoverageSVG(cov){
+  const W=120,H=70,losY=H-12,c=COV_SHELL[cov]||{deep:3},col=COV_COLORS[cov]||'#8a93a6';
+  let s=`<line x1="8" y1="${losY}" x2="${W-8}" y2="${losY}" stroke="rgba(255,255,255,.3)" stroke-width="1"/>`;
+  const deep=c.deep||0;
+  if(deep>0){ for(let i=0;i<deep;i++){ const x=12+(W-24)*(deep===1?0.5:i/(deep-1)); s+=`<circle cx="${x}" cy="14" r="3.4" fill="${col}"/>`; } }
+  else { s+=`<text x="${W/2}" y="17" fill="${col}" font-size="9" text-anchor="middle" font-weight="bold">0 deep</text>`; }
+  // underneath defenders
+  const und=Math.max(2,7-deep);
+  for(let i=0;i<und;i++){ const x=14+(W-28)*(i/(und-1)); s+=`<circle cx="${x}" cy="${losY-16}" r="2.6" fill="none" stroke="${col}" stroke-width="1.3"/>`; }
+  s+=`<text x="${W/2}" y="${losY+9}" fill="${col}" font-size="8.5" text-anchor="middle" font-weight="bold">${c.man?'MAN':'ZONE'}${c.split?' split':''}</text>`;
+  return `<svg class="mini-field" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+}
 /* ================= FIELD DRAWING ================= */
 function fieldBase(svg,W,H){
   let s='';
@@ -1218,13 +1241,14 @@ function renderOffense(){
   const fc = sortEntries(count(plays,'formation'));
   if(selFormation && !fc.find(([f])=>f===selFormation)) selFormation=null;
   if(!selFormation && fc.length) selFormation=fc[0][0];
-  $('formTable').innerHTML = `<tr><th>Formation</th><th>Pers</th><th>Plays</th><th></th><th>%</th><th>Run/Pass</th><th>Yds/Play</th></tr>`+
+  $('formTable').innerHTML = `<tr><th>Look</th><th>Formation</th><th>Pers</th><th>Plays</th><th></th><th>%</th><th>Run/Pass</th><th>Yds/Play</th></tr>`+
     fc.map(([f,n])=>{
       const fp=plays.filter(p=>p.formation===f);
       const rr=fp.filter(p=>p.playType==='Run').length/n;
       return `<tr class="clickable ${f===selFormation?'selrow':''}" onclick="selFormation='${f}';renderOffense()">
+        <td>${miniFormationSVG(f)}</td>
         <td>${formDot(f)}<b>${f}</b></td><td><span class="chip dim">${PERSONNEL[f]}</span></td><td class="pct">${n}</td>
-        <td style="width:22%"><div class="bar-wrap"><div class="bar" style="width:${n/plays.length*100}%;background:${FORM_COLORS[f]}"></div></div></td>
+        <td style="width:18%"><div class="bar-wrap"><div class="bar" style="width:${n/plays.length*100}%;background:${FORM_COLORS[f]}"></div></div></td>
         <td class="pct">${fmtPct(n/plays.length)}</td>
         <td><span class="chip run">${fmtPct(rr)} R</span> <span class="chip pass">${fmtPct(1-rr)} P</span></td>
         <td class="pct">${avg(fp.map(p=>p.gain)).toFixed(1)}</td></tr>`;}).join('');
@@ -1329,8 +1353,8 @@ function renderDefense(){
     <div class="kpi green"><div class="v">${fmtPct(plays.length?(plays.length-man.length)/plays.length:0)}</div><div class="l">Zone coverage</div></div>
     <div class="kpi"><div class="v">${avg(plays.map(p=>p.box)).toFixed(1)}</div><div class="l">Avg box</div></div>
     <div class="kpi"><div class="v">${avg(plays.map(p=>p.gain)).toFixed(1)}</div><div class="l">Yds allowed/play</div></div>`;
-  $('covTable').innerHTML=`<tr><th>Coverage</th><th>Snaps</th><th></th><th>%</th><th>Yds allowed</th></tr>`+
-    sortEntries(count(plays,'coverage')).map(([c,n])=>`<tr><td style="color:${COV_COLORS[c]||'inherit'}"><b>${c}</b></td><td class="pct">${n}</td><td style="width:38%"><div class="bar-wrap"><div class="bar" style="width:${n/plays.length*100}%;background:${COV_COLORS[c]||'var(--purple)'}"></div></div></td><td class="pct">${fmtPct(n/plays.length)}</td><td class="pct">${avg(plays.filter(p=>p.coverage===c).map(p=>p.gain)).toFixed(1)}</td></tr>`).join('');
+  $('covTable').innerHTML=`<tr><th>Shell</th><th>Coverage</th><th>Snaps</th><th></th><th>%</th><th>Yds allowed</th></tr>`+
+    sortEntries(count(plays,'coverage')).map(([c,n])=>`<tr><td>${miniCoverageSVG(c)}</td><td style="color:${COV_COLORS[c]||'inherit'}"><b>${c}</b></td><td class="pct">${n}</td><td style="width:30%"><div class="bar-wrap"><div class="bar" style="width:${n/plays.length*100}%;background:${COV_COLORS[c]||'var(--purple)'}"></div></div></td><td class="pct">${fmtPct(n/plays.length)}</td><td class="pct">${avg(plays.filter(p=>p.coverage===c).map(p=>p.gain)).toFixed(1)}</td></tr>`).join('');
   $('frontTable').innerHTML=`<tr><th>Front</th><th>Snaps</th><th></th><th>%</th><th>Yds allowed</th></tr>`+
     sortEntries(count(plays,'front')).map(([c,n])=>barRow(c,n,plays.length,'b').replace('</tr>',`<td class="pct">${avg(plays.filter(p=>p.front===c).map(p=>p.gain)).toFixed(1)}</td></tr>`)).join('');
   // vs look table — full matrix
@@ -1362,9 +1386,43 @@ function renderDefense(){
   });
   $('blitzByDown').innerHTML=bd+'</table>';
   const bt=sortEntries(count(bl,'blitzType'));
-  $('blitzDetail').innerHTML=`<table><tr><th>Pressure call</th><th>#</th><th>% of blitzes</th><th>Yds allowed</th></tr>`+
+  // origin field/boundary/interior + which player
+  const origins=sortEntries(count(bl.filter(p=>p.blitzOrigin),p=>p.blitzOrigin));
+  const players=sortEntries(count(bl.filter(p=>p.blitzPlayer),p=>p.blitzPlayer));
+  const originRow=origins.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${origins.map(([o,n])=>`<span class="chip gold">${o}: ${fmtPct(n/bl.length)}</span>`).join('')}</div>`:'';
+  const playerRow=players.length?`<div style="font-size:12px;margin-bottom:6px"><b style="color:var(--red)">Who brings it:</b> ${players.slice(0,4).map(([p,n])=>`<span class="chip blitz">${p} ${fmtPct(n/bl.length)}</span>`).join(' ')}</div>`:'<div class="muted" style="font-size:11px;margin-bottom:6px">Field/boundary &amp; blitzer-position detail fills in as new film is charted.</div>';
+  $('blitzDetail').innerHTML=`
+    ${originRow}${playerRow}
+    <table><tr><th>Pressure call</th><th>#</th><th>%</th><th>Yds allowed</th></tr>`+
     bt.map(([t,n])=>`<tr><td><span class="chip blitz">${t}</span></td><td class="pct">${n}</td><td class="pct">${fmtPct(bl.length?n/bl.length:0)}</td><td class="pct">${avg(bl.filter(p=>p.blitzType===t).map(p=>p.gain)).toFixed(1)}</td></tr>`).join('')+
-    `</table><div class="muted" style="font-size:12px;margin-top:10px">When blitzing, CENTRAL allows <b style="color:var(--text)">${bl.length?avg(bl.map(p=>p.gain)).toFixed(1):'—'}</b> yds/play vs <b style="color:var(--text)">${avg(plays.filter(p=>!p.blitz).map(p=>p.gain)).toFixed(1)}</b> when rushing 4.</div>`;
+    `</table><div class="muted" style="font-size:12px;margin-top:10px">When blitzing, they allow <b style="color:var(--text)">${bl.length?avg(bl.map(p=>p.gain)).toFixed(1):'—'}</b> yds/play vs <b style="color:var(--text)">${avg(plays.filter(p=>!p.blitz).map(p=>p.gain)).toFixed(1)}</b> rushing four.</div>`;
+  renderSecondaryWeakness(plays);
+}
+/* secondary / coverage weaknesses — what routes & concepts beat them */
+function renderSecondaryWeakness(plays){
+  const el=$('secWeak'); if(!el)return;
+  const passes=plays.filter(p=>p.playType!=='Run'&&p.gain>0);
+  if(passes.length<3){el.innerHTML='<div class="muted" style="font-size:12px">Charting more pass snaps will reveal which routes &amp; concepts are beating this secondary.</div>';return;}
+  // routes that gain the most
+  const routeStats={};
+  passes.forEach(p=>Object.values(p.routes||{}).forEach(r=>{if(r&&r!=='Block'&&r!=='Run Path'){(routeStats[r]=routeStats[r]||{n:0,y:0});routeStats[r].n++;routeStats[r].y+=p.gain;}}));
+  const topRoutes=Object.entries(routeStats).filter(([,s])=>s.n>=2).sort((a,b)=>b[1].y/b[1].n-a[1].y/a[1].n).slice(0,5);
+  // per coverage, what beats it
+  const byCov={};
+  plays.filter(p=>p.playType!=='Run').forEach(p=>{(byCov[p.coverage]=byCov[p.coverage]||[]).push(p);});
+  let covRows='';
+  Object.entries(byCov).forEach(([c,arr])=>{
+    const comp=arr.filter(p=>p.gain>0);
+    if(!comp.length)return;
+    const concepts=sortEntries(count(comp,'concept')).slice(0,2);
+    covRows+=`<tr><td style="color:${COV_COLORS[c]||'inherit'}"><b>${c}</b></td><td class="pct">${arr.length}</td><td class="pct">${avg(arr.map(p=>p.gain)).toFixed(1)}</td><td>${concepts.map(([k])=>`<span class="chip pass">${k}</span>`).join(' ')}</td></tr>`;
+  });
+  el.innerHTML=`
+    <div style="font-size:12px;margin-bottom:6px"><b style="color:var(--accent)">Routes gaining the most against this secondary</b></div>
+    <table style="margin-bottom:12px"><tr><th>Route</th><th>Times</th><th>Avg yds</th><th></th></tr>
+    ${topRoutes.map(([r,s])=>`<tr><td><span class="chip pass">${r}</span></td><td class="pct">${s.n}</td><td class="pct" style="color:var(--accent)">${(s.y/s.n).toFixed(1)}</td><td style="width:30%"><div class="bar-wrap"><div class="bar b" style="width:${Math.min(100,(s.y/s.n)*7)}%"></div></div></td></tr>`).join('')}</table>
+    <div style="font-size:12px;margin-bottom:6px"><b style="color:var(--accent)">What's beating each coverage</b></div>
+    <table><tr><th>Coverage</th><th>Att</th><th>Yds/att</th><th>Concepts exposing it</th></tr>${covRows}</table>`;
 }
 /* ================= TENDENCIES TAB ================= */
 function heatColor(runPct){
@@ -1640,8 +1698,21 @@ async function refreshPlays(){
     const plays=await api('/api/plays');
     const had=PLAYS.length;
     PLAYS=plays;
-    if(plays.length!==had){renderLiveLog();renderQuickStats();renderAll();}
+    if(plays.length!==had){renderLatestPlay();renderLiveLog();renderQuickStats();renderAll();}
   }catch(e){}
+}
+function quickChart(url){ $('jobUrl').value=url; if($('jobUrl2'))$('jobUrl2').value=url; submitUrlJob(); }
+function renderLatestPlay(){
+  const real=PLAYS.filter(p=>!p.demo);
+  if(!real.length)return;
+  const p=real[real.length-1];
+  // hydrate tag so the existing diagram + pre/post renderers show this charted play
+  tag.formation=p.formation; tag.routes={...(p.routes||{})}; tag.blitz=!!p.blitz; tag.blitzType=p.blitzType||'None';
+  tag.coverage=p.coverage; tag.playType=p.playType; tag.concept=p.concept; tag.gain=p.gain;
+  lastRead={pre:p.preSnapShell||null,rotation:p.rotation||null};
+  drawLiveField(); renderPrePost();
+  const det=$('latestDet');
+  if(det)det.innerHTML=`<div style="font-size:12px"><b style="color:var(--accent)">Latest charted play:</b> ${formChip(p.formation)} <span class="chip ${p.playType==='Run'?'run':'pass'}">${p.playType} · ${p.concept}</span> ${covChip(p.coverage)} ${p.blitz?'<span class="chip blitz">'+p.blitzType+'</span>':''} <span class="pct" style="float:right">${p.result}</span></div>`;
 }
 function jobUI(j){
   const pct=j.dur?Math.min(100,Math.round(j.t/j.dur*100)):0;
