@@ -571,8 +571,8 @@ function applyTeam(t){
   root.style.setProperty('--cyan', t.secondary || '#34e0ec');
   root.style.setProperty('--glow', hexA(accent, .16));
   document.title = `${t.school} — Film Intelligence`;
-  const fav = `data:image/svg+xml,${encodeURIComponent(teamMark(t, 100))}`;
-  document.querySelector('link[rel=icon]').href = fav;
+  const link = document.querySelector('link[rel=icon]');
+  if (t.logo) link.href = t.logo;   // their actual mark in the browser tab
 }
 /* Contrast check — white text on a pale accent is unreadable, and a coach
    noticing that before he notices the analytics is a bad first ten seconds. */
@@ -584,9 +584,20 @@ function pickInk(hex){
 const hexA = (hex,a) => { const c=hex.replace('#',''); const n=parseInt(c,16);
   return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; };
 
-/* The mark: OUR tile, THEIR monogram, THEIR color. We never ship a school's
-   actual logo or mascot art — see the trademark note in teams.json. */
+/* The school's REAL mark, on a tile in their color. If a school has no logo on
+   file we fall back to a monogram so the UI never renders empty — but a coach
+   should see his own wildcat, not his initials. */
 function teamMark(t, size){
+  if (t.logo) {
+    return `<span style="display:flex;align-items:center;justify-content:center;
+        width:${size}px;height:${size}px;border-radius:${Math.round(size*0.27)}px;
+        background:${t.primary};flex:0 0 auto">
+      <img src="${esc(t.logo)}" alt="${esc(t.school)}" style="width:${Math.round(size*0.68)}px;
+        height:${Math.round(size*0.68)}px;object-fit:contain;display:block"
+        onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'${esc(t.short)}',
+          style:'font-family:var(--f-display);font-weight:800;color:${t.onPrimary||'#fff'};font-size:${Math.round(size*0.4)}px'}))">
+    </span>`;
+  }
   const fs = t.short.length >= 4 ? 30 : t.short.length === 3 ? 36 : 44;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">`
     + `<rect x="3" y="3" width="94" height="94" rx="26" fill="${t.primary}"/>`
@@ -764,6 +775,11 @@ function screenFilm(){
       <input type="file" id="filmFile" accept="video/*" style="display:none" onchange="chartFile(this)">
     </div>
     <div id="intakeMsg"></div>
+    ${TEAM && TEAM.sampleFilm ? `
+      <div class="row no-print" style="margin-top:12px;gap:9px;flex-wrap:wrap">
+        <span class="eyebrow">Or try a real game</span>
+        <span class="chip" onclick="loadSample()">${ic('film',13)} ${esc(TEAM.sampleFilm.label)}</span>
+      </div>` : ''}
     <div style="height:16px"></div>
     <div class="tiles">
       <div class="tile"><div class="tl">${ic('layers',12)}Total Plays</div><div class="tv">${n?num(n):'0'}</div>
@@ -1100,7 +1116,10 @@ function screenReport(){
     <div style="height:18px"></div>
     <div class="card pad" style="margin-bottom:16px">
       <div class="row" style="gap:14px">
-        <span style="flex:0 0 auto;display:block;width:46px;height:46px">${TEAM?teamMark(TEAM,46):''}</span>
+        <span style="flex:0 0 auto;display:flex;align-items:center">${
+          TEAM && TEAM.logoWide
+            ? `<img src="${esc(TEAM.logoWide)}" alt="${esc(TEAM.school)}" style="height:46px;width:auto;object-fit:contain">`
+            : (TEAM?teamMark(TEAM,46):'')}</span>
         <div style="flex:1"><div style="font-family:var(--f-display);font-weight:800;font-size:24px;text-transform:uppercase">Scouting Report</div>
           <div class="muted" style="font-size:13px">${TEAM?esc(TEAM.school)+' · ':''}${ps.length} snaps charted${fixed?` · ${fixed} coach-confirmed`:''}</div></div>
         <span class="pill ${rev?'hot':'lime'}">${rev?rev+' unconfirmed':'Fully confirmed'}</span></div>
@@ -1222,6 +1241,15 @@ async function savePlay(id,queueMode){
 /* ============================================================================
    INTAKE
    ========================================================================= */
+/* One click, real film. Drops the sample game into the box and charts it, so a
+   coach can see the engine work without hunting for a file. */
+function loadSample(){
+  if(!TEAM || !TEAM.sampleFilm) return;
+  const box = $('#filmUrl');
+  box.value = TEAM.sampleFilm.url;
+  chartUrl();
+}
+
 async function chartUrl(){
   const url=$('#filmUrl').value.trim();
   if(!url) return toast('Paste a film link first.','err');

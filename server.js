@@ -603,22 +603,71 @@ api.post('/jobs/url', async (req, res) => {
   const dest = path.join(tn.filmDir, id + '.mp4');
   try {
     if (isYT) {
-      tn.JOBS[id].log.push('Fetching from YouTube via yt-dlp…');
-      await run('yt-dlp', ['-f', 'bv*[height<=720]+ba/b[height<=720]/b', '--merge-output-format', 'mp4',
-        '--no-playlist', '-o', dest, url], 600000);
-      if (!fs.existsSync(dest)) throw new Error('yt-dlp produced no file');
-      tn.JOBS[id].log.push('YouTube download complete (' + Math.round(fs.statSync(dest).size / 1048576) + ' MB).');
+      await fetchYouTube(tn, id, url, dest);
+      tn.JOBS[id].log.push('Download complete (' + Math.round(fs.statSync(dest).size / 1048576) + ' MB).');
       enqueue(tn, id, dest, false);
     } else {
       enqueue(tn, id, url, true);   // stream frames on demand; no full download
     }
   } catch (e) {
-    let msg = e.message.slice(0, 300);
-    if (isYT && /sign in|bot|429|403|confirm/i.test(msg))
-      msg = 'YouTube blocked this download from the server IP (common on cloud hosts). Download the film yourself and use Upload instead.';
-    tn.JOBS[id].status = 'error'; tn.JOBS[id].error = msg;
+    tn.JOBS[id].status = 'error';
+    tn.JOBS[id].error = e.message.slice(0, 400);
   }
 });
+
+/*
+  YOUTUBE FROM A CLOUD IP.
+
+  yt-dlp's default client trips YouTube's bot check when the request comes from a
+  datacenter — which is every request this server makes. Verified live on Render:
+  the default client returns "Sign in to confirm you're not a bot" and the film
+  never downloads. A coach pasting a broadcast link would just watch it fail.
+
+  YouTube serves the same video to several different client apps, and they don't
+  all get gated the same way. So we try them in order and take the first that
+  actually produces a file. If every one is blocked we say so plainly and point at
+  the path that always works — download it yourself, upload the file — instead of
+  leaving a coach staring at a dead spinner.
+*/
+const YT_CLIENTS = ['android', 'ios', 'web_safari', 'tv', 'mweb'];
+
+async function fetchYouTube(tn, id, url, dest) {
+  const log = m => tn.JOBS[id].log.push('[' + new Date().toISOString().slice(11, 19) + '] ' + m);
+  const errors = [];
+
+  for (const client of YT_CLIENTS) {
+    try {
+      log(`Fetching from YouTube (${client} client)…`);
+      await run('yt-dlp', [
+        '--extractor-args', `youtube:player_client=${client}`,
+        '-f', 'bv*[height<=720]+ba/b[height<=720]/b',
+        '--merge-output-format', 'mp4',
+        '--no-playlist',
+        '--no-warnings',
+        '--retries', '3',
+        '--socket-timeout', '20',
+        '-o', dest, url,
+      ], 900000);
+      if (fs.existsSync(dest) && fs.statSync(dest).size > 100000) {
+        log(`Got it via the ${client} client.`);
+        return;
+      }
+      throw new Error('produced no usable file');
+    } catch (e) {
+      const m = e.message.slice(0, 120);
+      errors.push(`${client}: ${m}`);
+      log(`${client} client blocked — trying the next one.`);
+      try { fs.unlinkSync(dest); } catch (_) {}
+    }
+  }
+
+  throw new Error(
+    'YouTube blocked every download client from this server (its IP is a datacenter, ' +
+    'and YouTube gates those). This is a YouTube restriction, not a fault in the film. ' +
+    'Download the game yourself and use Upload — that path is unaffected and gives the ' +
+    'engine better frames anyway. Tried: ' + errors.join(' | ').slice(0, 200)
+  );
+}
 
 api.post('/jobs/upload', upload.single('film'), (req, res) => {
   const tn = req.tn;
