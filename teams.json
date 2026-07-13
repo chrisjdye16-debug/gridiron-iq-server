@@ -1,0 +1,55 @@
+{
+  "_readme": [
+    "Team branding registry. Add a school here and it's sellable \u2014 no code changes.",
+    "",
+    "Set the active school per deployment with the TEAM env var (e.g. TEAM=acu).",
+    "Defaults to 'gridiron' (the unbranded house look) when TEAM is unset.",
+    "",
+    "FIELDS",
+    "  school      Full name, shown in the report header.",
+    "  short       2-4 letters. Rendered INSIDE the tile mark as a monogram.",
+    "  mascot      Shown under the wordmark.",
+    "  primary     Official brand color. Used for the mark, light mode, and print.",
+    "  accentDark  A BRIGHTENED primary for dark mode. Required \u2014 most college",
+    "              brand colors (navy, maroon, deep purple) are near-invisible on a",
+    "              near-black UI. This is the one field people get wrong.",
+    "  onPrimary   Text color that sits on top of primary. #fff or #0a0d12.",
+    "  secondary   Supporting color. Used for the secondary data series.",
+    "",
+    "TRADEMARK \u2014 read before you sell this.",
+    "  These are monograms (initials) in a school's colors, drawn in OUR tile mark.",
+    "  We do NOT ship any school's actual logo, wordmark, or wildcat/mascot art.",
+    "  Team names, logos and marks are trademarks of their schools. Colors alone",
+    "  aren't protectable, but a logo is \u2014 if a school wants their real mark in the",
+    "  product, get written permission from their licensing office first. Shipping",
+    "  a scraped athletics logo in software you charge for is exactly the kind of",
+    "  thing a university licensing office sends letters about."
+  ],
+  "gridiron": {
+    "school": "Gridiron IQ",
+    "short": "GQ",
+    "mascot": "Film Intelligence",
+    "primary": "#a6e016",
+    "accentDark": "#c6ff3a",
+    "onPrimary": "#0a0d12",
+    "secondary": "#34e0ec"
+  },
+  "acu": {
+    "school": "Abilene Christian",
+    "short": "ACU",
+    "mascot": "Wildcats",
+    "primary": "#4f2170",
+    "accentDark": "#a87fd4",
+    "onPrimary": "#ffffff",
+    "secondary": "#c5c6c8"
+  },
+  "tarleton": {
+    "school": "Tarleton State",
+    "short": "TSU",
+    "mascot": "Texans",
+    "primary": "#4F2683",
+    "accentDark": "#9564d2",
+    "onPrimary": "#ffffff",
+    "secondary": "#c5c6c8"
+  }
+}

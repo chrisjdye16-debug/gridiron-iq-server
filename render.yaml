@@ -1,0 +1,81 @@
+# Render Blueprint — GRIDIRON IQ film-analysis engine
+# In Render: New > Blueprint, point it at this repo, and it reads this file.
+#
+# Runtime is Docker because the engine shells out to ffmpeg / ffprobe / yt-dlp,
+# which the Dockerfile installs. A plain Node runtime will NOT have them.
+
+services:
+  - type: web
+    name: gridiron-iq
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    # Standard (2GB RAM) — ffmpeg frame extraction + libx264 clip cutting.
+    # Starter (512MB, $7) will usually work if you only upload local film and
+    # skip yt-dlp, but it can OOM while merging a long YouTube download.
+    # NOTE: disks are not supported on the free plan — free also spins down
+    # after 15 min idle, which kills a long auto-chart job mid-run.
+    plan: standard
+    healthCheckPath: /api/health
+
+    # Persistent disk. Without this, DATA_DIR lives on the ephemeral container
+    # filesystem and every charted play + cached clip is wiped on each deploy
+    # and restart. server.js already mkdir -p's DATA_DIR, so pointing the env
+    # var at the mount is all that's needed — no code change.
+    disk:
+      name: gridiron-data
+      mountPath: /var/data
+      sizeGB: 10
+
+    envVars:
+      # Set this in the Render dashboard — never commit it.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+      # ONE PASSWORD PER SCHOOL — TEAM_PASSWORD_<ID>, upper-cased team id.
+      # A school with no password set is OPEN: anyone with its URL can read that
+      # program's film. The server logs it at boot and the UI shows a red bar.
+      # Add one of these for every school you sell.
+      - key: TEAM_PASSWORD_ACU
+        sync: false
+      - key: TEAM_PASSWORD_TARLETON
+        sync: false
+
+      # Signs the session cookie. Render generates a strong value automatically.
+      # If this rotates, everyone is simply signed out — no data is lost.
+      - key: SESSION_SECRET
+        generateValue: true
+
+      # NOTE: there is no TEAM var anymore. This ONE service hosts every school
+      # in teams.json, each at its own path (/acu, /tarleton), each with its own
+      # data directory, its own film, and its own password. Adding a school =
+      # a teams.json entry + a TEAM_PASSWORD_<ID> var. No new service.
+
+      # Persist plays.json, uploaded film, and clip cutups onto the disk.
+      - key: DATA_DIR
+        value: /var/data/gridiron
+
+      # How many games' film to retain. Play cutups seek back into the source
+      # video, so the film has to stay on disk — but a full game is multi-GB and
+      # a 10GB disk fills fast. Oldest games are pruned past this count; their
+      # charted plays and analytics survive, only the video goes.
+      - key: KEEP_FILMS
+        value: "5"
+
+      - key: PORT
+        value: "10000"
+
+      # Engine tuning — these are the server.js defaults, surfaced so you can
+      # change them in the dashboard without a redeploy.
+      - key: MODEL_FULL
+        value: claude-opus-4-8
+      - key: MODEL_SCAN
+        value: claude-haiku-4-5-20251001
+      - key: TWO_PASS
+        value: "true"
+      - key: SCAN_STEP        # seconds between snap-detection scans
+        value: "12"
+      - key: POST_SKIP        # seconds to skip after charting a play
+        value: "26"
+      - key: MAX_PLAYS
+        value: "250"
