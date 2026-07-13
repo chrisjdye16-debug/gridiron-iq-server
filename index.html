@@ -133,7 +133,7 @@ body{font-family:var(--f-ui);background:var(--bg);background-image:var(--bg-grad
 .brand .tile{width:38px;height:38px;border-radius:11px;flex:0 0 auto;transition:transform .5s var(--ease)}
 .brand:hover .tile{transform:rotate(-8deg) scale(1.06)}
 .brand .bt{display:flex;flex-direction:column;line-height:1}
-.brand .bt b{font-family:var(--f-display);font-weight:800;font-size:21px;text-transform:uppercase}
+.brand .bt b{font-family:var(--f-display);font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:.01em;line-height:1.05}
 .brand .bt b .iq{color:var(--accent-ink);background:var(--accent);padding:0 .22em;border-radius:5px;margin-left:.18em;font-family:"Saira",sans-serif}
 .brand .bt span{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.26em;color:var(--t-low);text-transform:uppercase;margin-top:5px}
 .nav-group{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--t-low);padding:14px 10px 6px}
@@ -462,7 +462,6 @@ tr.fixed td:first-child{box-shadow:inset 3px 0 0 var(--cyan)}
     <div class="nav-group">Library</div>
     <nav id="nav2"></nav>
     <div class="side-foot">
-      <div id="teamSwitch"></div>
       <div class="side-theme tb-theme-m"></div>
       <div class="gamecard" id="gamecard"></div>
     </div>
@@ -536,11 +535,15 @@ const TABS = [
   {id:'report',    name:'Game Report',       icon:'report',    group:2, title:'Game Report',       sub:'Print-ready breakdown'},
 ];
 let PLAYS=[], HEALTH=null, SCHEMA=null, JOB=null, POLL=null, AUTH=null;
-let TEAM=null, TEAMS=[];
+let TEAM=null;
 
-/* The school is the first path segment: /acu, /tarleton. Every data call is
-   namespaced to it. There is no un-namespaced endpoint to accidentally hit —
-   the server has none, and neither do we. */
+/* The school is the first path segment. Every data call is namespaced to it.
+   There is no un-namespaced endpoint to accidentally hit — the server has none,
+   and neither do we.
+
+   Note: no other school is ever named anywhere in what we ship to the browser,
+   not even in a comment. A coach can View Source, and finding a rival program's
+   name in his own tool is not a thing you can explain away. */
 const TID = (location.pathname.split('/')[1] || 'gridiron').toLowerCase();
 const api = p => '/api/' + TID + p;
 let active = localStorage.getItem('giq-tab') || 'film';
@@ -591,9 +594,7 @@ function teamMark(t, size){
     + ` fill="${t.onPrimary||'#fff'}" text-anchor="middle" dominant-baseline="central"`
     + ` letter-spacing="1">${esc(t.short)}</text></svg>`;
 }
-/* Switching school = going to that school's site. It is a different tenant with
-   its own password and its own film — not a theme toggle. */
-function switchTeam(id){ location.href = '/' + id; }
+
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1312,7 +1313,7 @@ function render(){
   // Brand lockup: their mark, their monogram, "IQ" chip stays ours.
   if(TEAM) $('#brand').innerHTML = `
     <span class="tile" style="display:block;width:38px;height:38px;flex:0 0 auto">${teamMark(TEAM,38)}</span>
-    <div class="bt"><b>${esc(TEAM.short)}<span class="iq">IQ</span></b><span>${esc(TEAM.mascot)}</span></div>
+    <div class="bt"><b>${esc(TEAM.school)}</b><span>${esc(TEAM.mascot)} · Film IQ</span></div>
     <button class="side-close" onclick="drawer(false)">${ic('x',18)}</button>`;
 
   const nav=g=>TABS.filter(t=>t.group===g).map(t=>`
@@ -1346,16 +1347,9 @@ function render(){
     <div class="gc-meta">${rev?rev+' awaiting review':PLAYS.length?'All confirmed':'Load film to begin'}</div>
     <div class="gc-prog"><i style="width:${pct}%"></i></div>`;
 
-  // School switcher — only when more than one team is configured. This is the
-  // demo move: flip the whole product into a coach's colors while he watches.
-  const sw=$('#teamSwitch');
-  if(sw) sw.innerHTML = TEAMS.length>1 ? `
-    <div class="gc-lbl" style="margin-bottom:7px">Branding</div>
-    <div class="chips">${TEAMS.map(t=>`
-      <span class="chip ${TEAM&&t.school===TEAM.school?'on':''}" onclick="switchTeam('${esc(t.id)}')"
-            title="${esc(t.school)}">
-        <span style="width:9px;height:9px;border-radius:3px;background:${t.primary};display:inline-block;margin-right:6px;vertical-align:-1px"></span>
-        ${esc(t.short)}</span>`).join('')}</div>` : '';
+  /* There is no school switcher, by design. This is one program's tool. A coach
+     must never see that another school — least of all a conference rival — is
+     also a customer. The server no longer enumerates tenants either. */
 
   const screens={film:screenFilm,offense:screenOffense,defense:screenDefense,
     tendencies:screenTendencies,situations:screenSituations,plays:screenPlays,report:screenReport};
@@ -1400,7 +1394,7 @@ async function doLogin(){
 async function boot(){
   document.documentElement.setAttribute('data-theme', localStorage.getItem('giq-theme')||'dark');
   const b=await fetch(api('/branding')).then(r=>r.json()).catch(()=>null);
-  if(b){ TEAMS=b.all||[]; applyTeam(b.team); }
+  if(b) applyTeam(b.team);
 
   const auth=await fetch(api('/auth')).then(r=>r.json()).catch(()=>({authRequired:false,authed:true}));
   if(auth.authRequired && !auth.authed){ lockScreen(b&&b.team); return; }

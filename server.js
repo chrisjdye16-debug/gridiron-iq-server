@@ -27,10 +27,10 @@ const WORK_DIR = path.join(DATA_DIR, 'work');   // scratch frames only — never
 fs.mkdirSync(WORK_DIR, { recursive: true });
 
 /* ============================================================================
-   MULTI-TENANT — one site, one school per path: /acu, /tarleton, …
+   MULTI-TENANT — one site, one school per path (/acu, /<school>, …)
 
-   THE THING THAT MATTERS: these schools play each other. ACU and Tarleton are in
-   the same conference. If a bug ever lets one program read the other's charted
+   THE THING THAT MATTERS: the schools on this box play each other — same league,
+   same conference. If a bug ever lets one program read another's charted
    film, that is not a support ticket — it ends the product. So tenancy is not a
    URL prefix bolted onto shared state; every tenant gets its own directory, its
    own plays file, its own film, its own clips, and its own signed session whose
@@ -41,9 +41,9 @@ fs.mkdirSync(WORK_DIR, { recursive: true });
      DATA_DIR/tenants/<team>/film/
      DATA_DIR/tenants/<team>/clips/
 
-   Passwords are per school: TEAM_PASSWORD_ACU, TEAM_PASSWORD_TARLETON, …
-   (upper-cased team id). A session minted for acu cannot open tarleton's data —
-   the team is inside the signature, not just the cookie name.
+   Passwords are per school: TEAM_PASSWORD_<ID>, e.g. TEAM_PASSWORD_ACU.
+   A session minted for one school cannot open another's data — the team is inside
+   the signature, not just the cookie name.
    ========================================================================= */
 const TEAMS_FILE = path.join(__dirname, 'teams.json');
 let TEAMS = {};
@@ -425,12 +425,12 @@ async function processJob(tn, id, file, isRemote) {
    AUTH. A coach's charted film is the most sensitive asset his program owns, and
    the schools on this box play each other. So:
 
-     - Each school has its own password: TEAM_PASSWORD_ACU, TEAM_PASSWORD_TARLETON
+     - Each school has its own password: TEAM_PASSWORD_<ID>
        (env var = TEAM_PASSWORD_ + upper-cased team id).
-     - The session token is SIGNED WITH THE TEAM IN IT. A cookie minted for acu
-       fails validation against tarleton — you can't rename a cookie, replay one,
-       or walk a path to cross the line. The team is inside the HMAC.
-     - Cookies are per-team (giq_s_acu), scoped to that team's path.
+     - The session token is SIGNED WITH THE TEAM IN IT. A cookie minted for one
+       school fails validation against another — you can't rename a cookie, replay
+       one, or walk a path across the line. The team is inside the HMAC.
+     - Cookies are per-team (giq_s_<id>).
 
    A school with no password set is OPEN, and says so — in its health payload and
    as a red bar across its UI. Silent insecurity is how a game plan ends up on a
@@ -504,13 +504,18 @@ api.post('/logout', (req, res) => {
   res.setHeader('Set-Cookie', `${cookieFor(req.teamId)}=; HttpOnly; Path=/; Max-Age=0`);
   res.json({ ok: true });
 });
-// Public: school name + brand colors. The LOCK SCREEN needs this before login —
-// a coach should see his own mark on the sign-in page. Nothing here is private;
-// it's what's on their athletics website.
+/*
+  Public: THIS school's name and brand colors, and nothing else.
+
+  This used to also return `all` — every school on the box — so the UI could show
+  a switcher. That was a demo feature that leaked into the product. A coach at ACU
+  must never learn that another program is also a customer: it exposes the client list to
+  a conference rival, and it makes his own tool look like a shared portal instead
+  of his program's software. One school in, one school out. Never enumerate.
+*/
 api.get('/branding', (req, res) => res.json({
   active: req.teamId,
   team: TEAMS[req.teamId],
-  all: TENANT_IDS.map(k => ({ id: k, school: TEAMS[k].school, short: TEAMS[k].short, primary: TEAMS[k].primary })),
 }));
 
 /* ---- everything below requires a session for THIS school ---- */
@@ -688,47 +693,39 @@ api.get('/review', (req, res) => {
 
 
 /* ---------------- pages ---------------- */
-// /acu, /tarleton — the app shell. The client reads the team off the path.
+// /acu — that school's app. The client reads the team off the path.
 app.get('/:team', (req, res, next) => {
   const id = String(req.params.team).toLowerCase();
   if (!isTenant(id)) return next();
   res.sendFile(path.join(__dirname, 'index.html'));
 });
-// Static assets, but NOT index.html at "/" — root is the team picker.
 app.use(express.static(__dirname, { index: false }));
 
-// Root: pick a school. Anyone can see the list of names; nobody sees any film
-// without that school's password.
+/*
+  ROOT — deliberately says nothing.
+
+  This used to render a picker listing every school on the box. That was wrong in
+  a way that costs deals: a coach who lands on the bare domain would see that his
+  conference rivals are also customers. It exposes the client list, and it makes
+  his program's tool look like a shared portal.
+
+  A coach only ever receives his own deep link (/acu). The root is a nameless
+  front door. It enumerates nothing.
+*/
 app.get('/', (req, res) => {
-  const cards = TENANT_IDS.map(id => {
-    const t = TEAMS[id];
-    return `<a class="c" href="/${id}">
-      <span class="m" style="background:${t.primary};color:${t.onPrimary}">${t.short}</span>
-      <span class="n"><b>${t.school}</b><i>${t.mascot}</i></span></a>`;
-  }).join('');
   res.send(`<!doctype html><html><head><meta charset="utf-8">
-<title>Gridiron IQ — Film Intelligence</title>
+<title>Gridiron IQ</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@700;800&family=Hanken+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0d12;--surface:#141923;--line:#232c39;--hi:#f3f7fb;--mid:#a7b4c2;--low:#69788a}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--bg);color:var(--hi);
-  font-family:"Hanken Grotesk",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:24px;
-  background-image:radial-gradient(1200px 600px at 80% -10%,rgba(79,140,255,.08),transparent 60%)}
-.w{width:100%;max-width:440px}
-h1{font-family:"Saira Condensed",sans-serif;font-weight:800;font-size:30px;text-transform:uppercase;margin:0}
-p{color:var(--low);font-size:13px;margin:5px 0 24px;font-family:"JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase}
-.c{display:flex;align-items:center;gap:13px;padding:14px 16px;margin-bottom:10px;border-radius:14px;
-  background:var(--surface);border:1px solid var(--line);text-decoration:none;color:inherit;transition:all .18s cubic-bezier(.16,1,.3,1)}
-.c:hover{transform:translateY(-2px);border-color:var(--low)}
-.m{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
-  font-family:"Saira Condensed",sans-serif;font-weight:800;font-size:16px}
-.n{display:flex;flex-direction:column;line-height:1.3}
-.n b{font-size:15px}
-.n i{font-style:normal;font-size:12px;color:var(--mid)}
-</style></head><body><div class="w">
-<h1>Gridiron IQ</h1><p>Film Intelligence Platform</p>${cards}
+body{margin:0;min-height:100vh;background:#0a0d12;color:#f3f7fb;display:flex;align-items:center;
+ justify-content:center;text-align:center;font-family:system-ui,sans-serif;
+ background-image:radial-gradient(1200px 600px at 80% -10%,rgba(79,140,255,.08),transparent 60%)}
+h1{font-family:"Saira Condensed",sans-serif;font-weight:800;font-size:34px;text-transform:uppercase;margin:0}
+p{color:#69788a;font-size:12px;font-family:"JetBrains Mono",monospace;letter-spacing:.22em;text-transform:uppercase;margin:8px 0 0}
+</style></head><body><div>
+<h1>Gridiron IQ</h1><p>Film Intelligence Platform</p>
 </div></body></html>`);
 });
 
