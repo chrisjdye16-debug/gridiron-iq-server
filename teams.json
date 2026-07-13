@@ -24,10 +24,6 @@
     "onPrimary": "#ffffff",
     "secondary": "#c5c6c8",
     "logo": "https://acusports.com/images/sng_2025/logo_heading.svg",
-    "logoWide": "https://acusports.com/images/sng_2025/logo_main.svg",
-    "sampleFilm": {
-      "label": "ACU at Tulsa \u2014 2025 opener",
-      "url": "https://www.youtube.com/watch?v=ku9NV2GGLQc"
-    }
+    "logoWide": "https://acusports.com/images/sng_2025/logo_main.svg"
   }
 }

@@ -593,7 +593,7 @@ api.post('/jobs/url', async (req, res) => {
   const tn = req.tn;
   if (!API_KEY) return res.status(400).json({ error: 'ANTHROPIC_API_KEY is not set on the server.' });
   const url = String((req.body || {}).url || '').trim();
-  if (!/^https?:\/\//.test(url)) return res.status(400).json({ error: 'Paste a direct video link (.mp4/.mov/.webm), a Hudl download link, or a YouTube URL.' });
+  if (!/^https?:\/\//.test(url)) return res.status(400).json({ error: 'Paste a direct video link (.mp4/.mov/.webm) or a Hudl download link.' });
   if (HUDL_WATCH.test(url)) return res.status(422).json(HUDL_HELP);
 
   const id = crypto.randomBytes(6).toString('hex');

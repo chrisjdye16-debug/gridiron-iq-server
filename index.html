@@ -768,18 +768,21 @@ function screenFilm(){
     <div class="intake no-print">
       <div class="sq">${ic('film',22)}</div>
       <div class="field-in">${ic('search',16)}
-        <input id="filmUrl" placeholder="Paste a film link — direct .mp4/.mov, a Hudl download link, or YouTube"
+        <input id="filmUrl" placeholder="Paste a film link — a direct .mp4/.mov, or a Hudl download link"
                onkeydown="if(event.key==='Enter')chartUrl()"></div>
       <button class="btn primary" id="chartBtn" onclick="chartUrl()">${ic('zap',16)}Chart Film</button>
       <button class="btn" onclick="document.getElementById('filmFile').click()">${ic('upload',16)}Upload</button>
       <input type="file" id="filmFile" accept="video/*" style="display:none" onchange="chartFile(this)">
     </div>
     <div id="intakeMsg"></div>
-    ${TEAM && TEAM.sampleFilm ? `
-      <div class="row no-print" style="margin-top:12px;gap:9px;flex-wrap:wrap">
-        <span class="eyebrow">Or try a real game</span>
-        <span class="chip" onclick="loadSample()">${ic('film',13)} ${esc(TEAM.sampleFilm.label)}</span>
-      </div>` : ''}
+    ${n ? '' : `
+      <div class="hudl-help no-print" style="margin-top:14px;border-left-color:var(--accent)">
+        <div class="hh-t">${ic('upload',15)} Upload the game film — that's the path that works</div>
+        <div class="hh-d">Drop in an <b>.mp4 / .mov</b> of the game, a <b>Hudl download link</b>, or any direct video link. The engine reads real frames and charts every snap.</div>
+        <div class="hh-n" style="margin-top:10px">
+          <b>A note on YouTube:</b> YouTube blocks downloads from cloud servers like this one — that's their anti-bot rule for datacenters, not a fault in the film. Save the game to your computer and upload the file. You'll get sharper frames and a more accurate chart out of it anyway.
+        </div>
+      </div>`}
     <div style="height:16px"></div>
     <div class="tiles">
       <div class="tile"><div class="tl">${ic('layers',12)}Total Plays</div><div class="tv">${n?num(n):'0'}</div>
@@ -1241,15 +1244,6 @@ async function savePlay(id,queueMode){
 /* ============================================================================
    INTAKE
    ========================================================================= */
-/* One click, real film. Drops the sample game into the box and charts it, so a
-   coach can see the engine work without hunting for a file. */
-function loadSample(){
-  if(!TEAM || !TEAM.sampleFilm) return;
-  const box = $('#filmUrl');
-  box.value = TEAM.sampleFilm.url;
-  chartUrl();
-}
-
 async function chartUrl(){
   const url=$('#filmUrl').value.trim();
   if(!url) return toast('Paste a film link first.','err');
